@@ -39,9 +39,10 @@ class Prompt:
                 answer = self.get_input(prompt)
             except EOFError:
                 # User hit Ctrl-D, quit.
-                print "\nBye!" # get on a newline first
+                print # get on a newline first
                 break
             handle_value = self.handle_answer(answer)
+        print "Bye!"
 
     def get_input(self, prompt):
         """Prompts for user input using given prompt string and returns input."""
@@ -65,6 +66,8 @@ class Prompt:
             self.help()
         elif answer.lower() == "exit" or answer.lower() == "exit()":
             return "exit"
+        elif answer == "":
+            print "Please enter something other than whitespace."
         else:
             sql_match = re.match(self.rSql, answer)
             quest_operator_match = re.match(self.rQuestOperator, answer)
@@ -84,7 +87,9 @@ class Prompt:
                 if answer_without_operator[0] == '(' and answer_without_operator[-1] == ')':
                     arguments = answer_without_operator[1:-1].split(", ")
                     try:
-                        return self.engine.apply_operator(operator.lower(), *arguments)
+                        return_value = self.engine.apply_operator(operator.lower(), *arguments)
+                        print return_value
+                        return return_value
                     except TypeError as te:
                         print te
                         return False
