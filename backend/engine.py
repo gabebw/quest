@@ -27,6 +27,8 @@ class Engine:
         For more on what each operator does, see operators/<operator_name>.py.
         """
 
+        operator_name = operator_name.lower()
+
         # Get the function, e.g. quest.operators.drilldown
         try:
             operator = getattr(quest.operators, operator_name)
