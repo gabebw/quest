@@ -28,7 +28,7 @@ class Prompt:
         """Calls init_history()."""
         self.banner = banner
         self.init_history(histfile)
-        self.engine = quest.backend.engine.Engine()
+        self.engine = quest.backend.engine.engine_instance()
 
     def interact(self, prompt=">>> "):
         """Starts up the REPL, prints banner message and passes user input to handle_answer."""

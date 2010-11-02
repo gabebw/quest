@@ -80,3 +80,5 @@ class Engine:
 
         return self.connection.execute(query)
 
+# Singleton
+engine_instance = Engine()
