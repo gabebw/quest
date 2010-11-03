@@ -5,6 +5,7 @@ to quest.*.
 
 from sqlalchemy import create_engine
 from sqlalchemy.sql.expression import text
+import sqlalchemy.exc
 
 import quest.operators
 import quest.config
@@ -25,11 +26,17 @@ class Engine:
 
     def run_sql(self, sql):
         """Evaluates a pure SQL expression. Currently just prints it."""
-        t = text(answer)
-        print t
-        # TODO: should this be translated to SQLAlchemy first?
-        self.queries.append(t)
-        return self.connection.execute(t)
+        t = text(sql)
+        try:
+            response = self.connection.execute(t)
+        except sqlalchemy.exc.OperationalError as oe:
+            # Failed, don't append to queries.
+            print oe
+        else:
+            # Everything went fine, proceed.
+            print t
+            # TODO: should this be translated to SQLAlchemy first?
+            self.queries.append(t)
 
     def apply_operator(self, operator_name, query, predicate):
         """Apply the given operator_name to the query using the given predicate.
