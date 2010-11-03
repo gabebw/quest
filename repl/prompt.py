@@ -3,7 +3,7 @@ import atexit
 import os
 import re
 
-import quest.backend.engine
+import quest.engine
 
 class Prompt:
     """A basic REPL (read-eval-print-loop) that passes user input to the Quest engine.
@@ -28,13 +28,14 @@ class Prompt:
         """Calls init_history()."""
         self.banner = banner
         self.init_history(histfile)
-        self.engine = quest.backend.engine.engine_instance()
+        self.engine = quest.engine.engine_instance
 
     def interact(self, prompt=">>> "):
         """Starts up the REPL, prints banner message and passes user input to handle_answer."""
         print self.banner
         handle_value = None
-        while handle_value != "exit":
+        quit_words = ["exit", "exit()", "quit", "quit()"]
+        while handle_value not in quit_words:
             try:
                 answer = self.get_input(prompt)
             except EOFError:
