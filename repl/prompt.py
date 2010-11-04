@@ -4,7 +4,7 @@ import os
 import re
 
 import quest.engine
-import quest.query.query_cache as query_cache
+from quest.query import query_cache
 
 class Prompt:
     """A basic REPL (read-eval-print-loop) that passes user input to the Quest engine.
