@@ -5,8 +5,7 @@
 
 from collections import OrderedDict
 
-import engine
-import config
+import quest.engine
 
 class Query:
     def __init__(self, sql_dict, parent = None):
@@ -21,7 +20,7 @@ class Query:
         self.parent = parent
         # self.child is explicitly set by operators
         self.child = None
-        self.engine = engine.engine_instance
+        self.engine = quest.engine
 
     def narrow(self, predicate):
         new_sql_dict = sql_dict
