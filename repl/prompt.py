@@ -4,24 +4,29 @@ import os
 import re
 
 import quest.engine
+import quest.query.query_cache as query_cache
 
 class Prompt:
     """A basic REPL (read-eval-print-loop) that passes user input to the Quest engine.
 
     It accepts pure SQL or Quest-specific operators.
-    Currently, it only pretty-prints what the user types in, with a note as to
-    whether it's SQL or a Quest operator. It shows an error message (but doesn't
-    raise an error) on invalid input.
-    To quit: type "exit" or type "exit()" and hit ENTER, or hit Ctrl-D (EOF).
+    It shows an error message (but doesn't raise an error) on invalid input.
+    To quit: type "exit" or "exit()" and hit ENTER, or hit Ctrl-D (EOF).
     """
     # Some class-level regexps
     rSql = re.compile(r"^(select|update|insert) .+", re.IGNORECASE)
 
     # Quest-specific operators
-    # Matches a line starting with a Quest operator, regardless of case.
-    rQuestOperator = re.compile(r"^(rollup|drilldown|store|relax|narrow)",
+    # Matches a line with a Quest operator, regardless of case.
+    # So Q.rollup(predicate) would match, as would rollup(predicate).
+    # Groups:
+    #  1: the query variable (e.g. Q)
+    #  2: the operator name
+    #  3: the arguments (arguments aren't optional, but we make an optional match
+    #     here so we can check if they're None later).
+    rQuestOperator = re.compile(r"^(.*\.)(rollup|drilldown|store|relax|narrow)(?:\((.+)\))?",
             re.IGNORECASE)
-   
+
     def __init__(self,
             banner='Welcome to Quest! For help, type "help" and hit RETURN.',
             histfile=os.path.expanduser("~/.quest_history")):
@@ -80,25 +85,44 @@ class Prompt:
             elif quest_operator_match:
                 # Answer is a Quest operator, delegate
                 print "** QUEST OPERATOR DETECTED **"
-                operator = quest_operator_match.group(1)
-                # We have an operator, now get the arguments
-                answer_without_operator = answer.replace(operator, '', 1)
-                if answer_without_operator == '':
-                    print "Please provide arguments to", operator
-                if answer_without_operator[0] == '(' and answer_without_operator[-1] == ')':
-                    arguments = answer_without_operator[1:-1].split(", ")
-                    try:
-                        return_value = self.engine.apply_operator(operator.lower(), *arguments)
-                        print return_value
-                        return return_value
-                    except TypeError as te:
-                        print te
-                        return False
+                query_variable = quest_operator_match.group(1)
+                quest_operator = quest_operator_match.group(2)
+                arguments = quest_operator_match.group(3)
+
+                if query_variable is not None:
+                    # User is calling an operator on a specific query
+                    # Try to look up the query in the query cache
+                    query = query_cache.get(query_variable)
                 else:
-                    print "Please use this syntax: {}(<arguments...>)".format(operator)
+                    # No query variable specified, so use most recent query
+                    query = query_cache.most_recent_query()
+
+                if query is None:
+                    # Either failed to get query_variable from query cache, or
+                    # this is the first command (so most_recent_query is None).
+                    # Either way, fail.
+                    print "!!!", query_variable, "is not a valid query variable!"
+                    return False
+                else:
+                    # We have a query.
+                    if arguments is None:
+                        print "Please provide arguments to", operator
+                        return False
+                    else:
+                        try:
+                            # e.g. query.narrow
+                            query_function = getattr(query, operator.lower())
+                            return_value = query_function(*arguments)
+                            print return_value
+                            return return_value
+                        except TypeError as te:
+                            print te
+                            return False
+                    else:
+                        print "Please use this syntax: [<query variable>.]{}(<arguments...>)".format(operator)
             else:
                 print "ERR: {} is not valid SQL or a Quest operator. Please try again.".format(answer)
-        
+
     def init_history(self, histfile):
         """Initialize the history management.
 
