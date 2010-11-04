@@ -41,12 +41,10 @@ class Query:
 
     def show(self, number_of_rows = None):
         """Actually sends the query to the DB. If number_of_rows is None (the
-        default), then the query uses the config.NUMBER_OF_ROWS_TO_SHOW setting.
+        default), then the query gets all results.
         """
-        if number_of_rows is None:
-            number_of_rows = config.NUMBER_OF_ROWS_TO_SHOW
         # TODO: pass in number of rows to run_sql
-        result = self.engine.run_sql(self.build_query())
+        result = self.engine.run_sql(self.build_query(), number_of_rows)
         return result
 
     def build_query(self):
