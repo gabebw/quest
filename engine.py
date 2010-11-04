@@ -4,7 +4,6 @@ from sqlalchemy import create_engine
 from sqlalchemy.sql.expression import text
 import sqlalchemy.exc
 
-import quest.operators
 import quest.config as config
 from quest.query import query_cache
 
