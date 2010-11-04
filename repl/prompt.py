@@ -90,9 +90,14 @@ class Prompt:
                 arguments = quest_operator_match.group(3)
 
                 if query_variable is not None:
-                    # User is calling an operator on a specific query
-                    # Try to look up the query in the query cache
-                    query = query_cache.get(query_variable)
+                    # User is calling an operator on a specific query.
+                    # Try to look up the query in the query cache.
+                    try:
+                        query = query_cache.get(query_variable)
+                    except KeyError:
+                        print query_variable, "is not a valid query variable.",
+                        "Please try again."
+                        return False
                 else:
                     # No query variable specified, so use most recent query
                     query = query_cache.most_recent_query()
@@ -106,7 +111,9 @@ class Prompt:
                 else:
                     # We have a query.
                     if arguments is None:
-                        print "Please provide arguments to", operator
+                        print "You must provide arguments to", operator
+                        print "Please use this syntax:",
+                        "[<query variable>.]{}(arg1, arg2, ...)".format(operator)
                         return False
                     else:
                         try:
