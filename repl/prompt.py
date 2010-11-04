@@ -5,6 +5,7 @@ import re
 
 import quest.engine
 from quest.query import query_cache
+import quest.config as config
 
 class Prompt:
     """A basic REPL (read-eval-print-loop) that passes user input to the Quest engine.
@@ -119,14 +120,23 @@ class Prompt:
                         try:
                             # query_function is e.g. query.narrow
                             query_function = getattr(query, operator.lower())
-                            return_value = query_function(*arguments)
-                            print return_value
-                            return return_value
                         except TypeError as te:
                             print te
                             return False
+                        else:
+                            new_query = query_function(*arguments)
+                            if self.should_show_query():
+                                new_query.show()
+                            print new_query
+                            return new_query
             else:
                 print "ERR: {} is not valid SQL or a Quest operator. Please try again.".format(answer)
+
+    def should_show_query(self):
+        """Returns True if Quest is configured to always SHOW a query, even
+        without user explicitly asking for it, False otherwise.
+        """
+        return config.show_behavior in [config.SHOW_ALL, config.SHOW_N]
 
     def init_history(self, histfile):
         """Initialize the history management.
