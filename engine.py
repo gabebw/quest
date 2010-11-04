@@ -5,7 +5,7 @@ from sqlalchemy.sql.expression import text
 import sqlalchemy.exc
 
 import quest.operators
-import quest.config
+import quest.config as config
 from quest.query import query_cache
 
 # in-memory SQLite engine
@@ -13,7 +13,7 @@ sql_engine = create_engine('sqlite:///:memory:', echo=True)
 connection = sql_engine.connect()
 
 def run_sql(sql):
-    """Evaluates a pure SQL expression."""
+    """Sends a pure SQL expression to the DB and returns the result."""
     t = text(sql)
     try:
         response = connection.execute(t)
@@ -23,21 +23,44 @@ def run_sql(sql):
         # Everything went fine, proceed.
         print t
 
-
 def show(query, number_of_rows = None):
-    """Actually sends the given query to the database and returns the result.
-    If query is None, then it uses the most recent query. If number_of_rows is
-    None, then it displays all rows in result. By default, Quest does not SHOW
-    until the user specifically commands it. The <FILL ME IN> setting may be
-    used to change the default to one of three settings:
-    * default to SHOWing every row of every command,
-    * default to SHOWing N rows of every command (where N is an integer), or
-    * default to SHOWing only when the user asks for it (i.e. the default
-      anyway)
+    """Actually sends the given query to the database and returns the resulting
+    rows as a list.
+    If number_of_rows is None, then it displays all rows in result. By default,
+    Quest does not SHOW until the user specifically commands it. The <TODO: FILL
+    ME IN> setting in config.py may be used to change the default to one of
+    three settings:
+    * SHOW_ALL: default to SHOWing every row of every command,
+    * SHOW_N: default to SHOWing N rows of every command
+              (where N = config.number_of_rows_to_show), or
+    * SHOWing only when the user asks for it (i.e. the built-in default)
     """
     if query is None:
-        query = query_cache.most_recent_query()
-    if number_of_rows is None:
-        number_of_rows = quest.config.number_of_rows_to_show
+        raise ValueError("query cannot be None!")
 
-    return connection.execute(query)
+    result = connection.execute(query)
+    # Fetch the correct number of rows
+    if number_of_rows is None:
+        # Nothing specified, consult config.
+        if config.show_behavior == config.SHOW_ALL:
+            return result.fetchall()
+        elif config.show_behavior == config.SHOW_N:
+            fetched_rows = result.fetchmany(config.number_of_rows_to_show)
+            # Since number_of_rows_to_show may be less than the total number of
+            # rows, and the ResultProxy only closes when all rows are exhausted,
+            # explicitly close the ResultProxy.
+            result.close()
+            return fetched_rows
+        else:
+            # Default to showing every row
+            return result.fetchall()
+    else:
+        if str(number_of_rows).isdigit():
+            fetched_rows = result.fetchmany(int(number_of_rows))
+            # Since number_of_rows may be less than the total number of
+            # rows, and the ResultProxy only closes when all rows are exhausted,
+            # explicitly close the ResultProxy.
+            result.close()
+            return fetched_rows
+        else:
+            raise ValueError("number_of_rows ({}) is not an int!".format(number_of_rows))
