@@ -4,8 +4,8 @@ from sqlalchemy import create_engine
 from sqlalchemy.sql.expression import text
 import sqlalchemy.exc
 
-import quest.config as config
-from quest.query import query_cache
+import config as config
+from query import query_cache
 
 # in-memory SQLite engine
 sql_engine = create_engine('sqlite:///:memory:', echo=True)
