@@ -118,8 +118,6 @@ class Prompt:
                         except TypeError as te:
                             print te
                             return False
-                    else:
-                        print "Please use this syntax: [<query variable>.]{}(<arguments...>)".format(operator)
             else:
                 print "ERR: {} is not valid SQL or a Quest operator. Please try again.".format(answer)
 
