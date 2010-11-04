@@ -91,6 +91,9 @@ class Prompt:
                 quest_operator = quest_operator_match.group(2)
                 arguments = quest_operator_match.group(3)
 
+                # Initialize to None in case fail to get a query at all below
+                query = None
+
                 if query_variable is not None:
                     # User is calling an operator on a specific query.
                     # Try to look up the query in the query cache.
@@ -107,7 +110,8 @@ class Prompt:
                     # Either we failed to get query_variable from query cache, or
                     # this is the first command (so most_recent_query is None).
                     # In any case, fail.
-                    print "!!!", query_variable, "is not a valid query variable!"
+                    print "!!!", query_variable, # note ending comma
+                    print "is not a valid query variable. Please try again."
                     return False
                 else:
                     # We have a query.
