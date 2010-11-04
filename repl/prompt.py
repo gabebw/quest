@@ -24,7 +24,7 @@ class Prompt:
     #  2: the operator name
     #  3: the arguments (arguments aren't optional, but we make an optional match
     #     here so we can check if they're None later).
-    rQuestOperator = re.compile(r"^(.*\.)(rollup|drilldown|store|relax|narrow)(?:\((.+)\))?",
+    rQuestOperator = re.compile(r"^(.*)\.(rollup|drilldown|store|relax|narrow)(?:\((.+)\))?",
             re.IGNORECASE)
 
     def __init__(self,
