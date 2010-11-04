@@ -39,8 +39,8 @@ class Prompt:
         """Starts up the REPL, prints banner message and passes user input to handle_answer."""
         print self.banner
         handle_value = None
-        quit_words = ["exit", "exit()", "quit", "quit()"]
-        while handle_value not in quit_words:
+        # handle_answer returns "exit" when user wants to exit.
+        while handle_value != "exit":
             try:
                 answer = self.get_input(prompt)
             except EOFError:
@@ -66,11 +66,13 @@ class Prompt:
         print "\t" + 'narrow(Q, r): "AND" the select clause of Q with predicate r'
 
     def handle_answer(self, answer):
-        """Handle user input; called by interact()."""
+        """Handle user input. Called by interact()."""
         answer = answer.strip()
-        if answer.lower() == "help" or answer.lower() == "help()":
+        quit_words = ["exit", "exit()", "quit", "quit()"]
+        help_words = ["help", "help()"]
+        if answer.lower() in help_words:
             self.help()
-        elif answer.lower() == "exit" or answer.lower() == "exit()":
+        elif answer.lower() in quit_words:
             return "exit"
         elif answer == "":
             print "Please enter something other than whitespace."
@@ -80,7 +82,6 @@ class Prompt:
             if sql_match:
                 # Answer is pure SQL
                 print "** SQL DETECTED **"
-                # Tell quest to run pure SQL
                 return self.engine.run_sql(answer)
             elif quest_operator_match:
                 # Answer is a Quest operator, delegate
@@ -95,17 +96,16 @@ class Prompt:
                     try:
                         query = query_cache.get(query_variable)
                     except KeyError:
-                        print query_variable, "is not a valid query variable.",
-                        "Please try again."
-                        return False
+                        # Pass because we print an error message later.
+                        pass
                 else:
                     # No query variable specified, so use most recent query
                     query = query_cache.most_recent_query()
 
                 if query is None:
-                    # Either failed to get query_variable from query cache, or
+                    # Either we failed to get query_variable from query cache, or
                     # this is the first command (so most_recent_query is None).
-                    # Either way, fail.
+                    # In any case, fail.
                     print "!!!", query_variable, "is not a valid query variable!"
                     return False
                 else:
@@ -117,7 +117,7 @@ class Prompt:
                         return False
                     else:
                         try:
-                            # e.g. query.narrow
+                            # query_function is e.g. query.narrow
                             query_function = getattr(query, operator.lower())
                             return_value = query_function(*arguments)
                             print return_value
