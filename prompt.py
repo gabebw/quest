@@ -58,13 +58,15 @@ class Prompt:
 
     def help(self):
         """Print the help."""
-        print "Quest: QUery Engine for Selecting Tables"
-        print "SQL: You can type in any valid SQL expression to see its result."
-        print "You can also use some Quest-specific operators:"
-        print "\trollup(Q): rolls up a query Q"
-        print "\tdrilldown(Q): drilldown on a query Q"
-        print "\t" + 'relax(Q, r): "OR" the select clause of Q with predicate r'
-        print "\t" + 'narrow(Q, r): "AND" the select clause of Q with predicate r'
+        print """
+        Quest: QUery Engine for Selecting Tables
+        SQL: You can type in any valid SQL expression to see its result.
+        You can also use some Quest-specific operators:
+        \trollup(Q): rolls up a query Q
+        \tdrilldown(Q): drilldown on a query Q
+        \trelax(Q, r): "OR" the select clause of Q with predicate r
+        \tnarrow(Q, r): "AND" the select clause of Q with predicate r
+        """
 
     def handle_answer(self, answer):
         """Handle user input. Called by interact()."""
