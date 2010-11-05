@@ -41,8 +41,8 @@ def next_variable_name(letters = uppercase_list):
     unused_letters = [letter for letter in letters if letter not in cache_keys]
     if len(unused_letters) == 0:
         # All letters are used, recurse.
-        # "A" -> "AA", "AA" -> "AAA", etc.
-        new_letters = [letter + letter for letter in letters]
+        # Each letter in letters grows by one, so "A" -> "AA", "AA" -> "AAA", etc.
+        new_letters = [letter + letter[0] for letter in letters]
         next_variable_name = next_variable_name(new_letters)
     else:
         # There are unused letters, take the first one
