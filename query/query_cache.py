@@ -66,5 +66,6 @@ def delete(key):
     """Delete the key from the cache. Raises a KeyError (exactly like a dict)
     if the key is not in the cache. Returns the key.
     """
+    query = get(key)
     del cache[key]
-    return key
+    return query
