@@ -49,14 +49,14 @@ def next_variable_name(letters = uppercase_list):
         next_variable_name = unused_letters[0]
     return next_variable_name
 
-def put(key, value):
-    """Put a (key, value) pair in the cache. Returns a (key, value) tuple."""
-    cache[key] = value
-    most_recent_query = value
-    return (key, value)
+def put(key, query):
+    """Put a (key, query) pair in the cache. Returns a (key, query) tuple."""
+    cache[key] = query
+    most_recent_query = query
+    return (key, query)
 
 def get(key):
-    """Returns the value associated with the given key. Behaves exactly like a
+    """Returns the query associated with the given key. Behaves exactly like a
     dict (since that's what it uses) if the key is not in the cache. That is, it
     raises a KeyError.
     """
@@ -64,7 +64,7 @@ def get(key):
 
 def delete(key):
     """Delete the key from the cache. Raises a KeyError (exactly like a dict)
-    if the key is not in the cache. Returns the key.
+    if the key is not in the cache. Returns the query associated with the key.
     """
     query = get(key)
     del cache[key]
