@@ -12,15 +12,18 @@ sql_engine = create_engine('sqlite:///:memory:', echo=True)
 connection = sql_engine.connect()
 
 def run_sql(sql):
-    """Sends a pure SQL expression to the DB and returns the result."""
+    """Sends a pure SQL expression to the DB and returns the result. A small
+    wrapper around show().
+    """
     t = text(sql)
     try:
-        response = connection.execute(t)
+        rows = show(t)
     except sqlalchemy.exc.OperationalError as oe:
         print oe
     else:
         # Everything went fine, proceed.
         print t
+        return rows
 
 def show(query, number_of_rows = None):
     """Actually sends the given query to the database and returns the resulting
