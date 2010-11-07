@@ -1,15 +1,22 @@
 # Configuration settings for Quest.
 
-# Only show results when user explicitly asks for them
-SHOW_NONE = 'show_none'
-# Always show first N results, where N == number_of_rows_to_show
-SHOW_N = 'show_n'
-# Always show all rows of every result
-SHOW_ALL = 'show_all'
+# Users can either have Quest show the result of every query, or only show when
+# they explicitly ask for it. For each of those 2 cases, they can either specify
+# how many rows they want, or leave it blank. These config settings come into
+# play in all 4 cases.
+# There are 2 main settings:
+# ALWAYS_SHOW: True or False; if True then we always show every query, and use
+#              SHOW_BEHAVIOR to check how many rows to show
+# ROWS_TO_SHOW: Either ALL_ROWS or an integer. If set to ALL_ROWS, we show all rows
+# whenever we SHOW. If set to an integer, then we show that many rows.
 
-# When show_behavior == SHOW_N, this variable is used to determine how many rows
-# to show.
-number_of_rows_to_show = 20
+# This setting controls what happens whenever we SHOW (either at user's request
+# or automatically).
+# Show all rows of result
+ALL_ROWS = "all"
 
-# Default to always showing all rows
-show_behavior = SHOW_ALL
+# Default to always showing every query
+ALWAYS_SHOW = True
+# When we are asked to show a query, and user doesn't specify how many rows to
+# show, we show this many rows. Can be either ALL_ROWS or an integer.
+ROWS_TO_SHOW = ALL_ROWS
