@@ -121,21 +121,18 @@ class Prompt:
                     # In any case, fail.
                     print "!!!", query_variable, # note ending comma
                     print "is not a valid query variable. Please try again."
-                    return False
                 else:
                     # We have a query.
                     if arguments is None:
                         print "You must provide arguments to", operator
                         print "Please use this syntax:",
                         "[<query variable>.]{}(arg1, arg2, ...)".format(operator)
-                        return False
                     else:
                         try:
                             # query_function is e.g. query.narrow
                             query_function = getattr(query, operator.lower())
                         except TypeError as te:
                             print te
-                            return False
                         else:
                             new_query = query_function(*arguments)
                             if self.should_show_query():
@@ -144,6 +141,8 @@ class Prompt:
                             return new_query
             else:
                 print "ERR: {} is not valid SQL or a Quest operator. Please try again.".format(answer)
+            # If we haven't returned by now, it's an error. Return False.
+            return False
 
     def should_show_query(self):
         """Returns True if Quest is configured to always SHOW a query, even
