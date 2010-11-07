@@ -136,7 +136,8 @@ class Prompt:
                         else:
                             new_query = query_function(*arguments)
                             if self.should_show_query():
-                                new_query.show()
+                                rows = new_query.show()
+                                print rows
                             print new_query
                             return new_query
             else:
