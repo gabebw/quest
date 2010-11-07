@@ -18,14 +18,21 @@ class Prompt:
     rSql = re.compile(r"^(select|update|insert) .+", re.IGNORECASE)
 
     # Quest-specific operators
+    rQuestOperator =r"(rollup|drilldown|store|relax|narrow)"
+    # A query variable has to be word characters, so "my_query_variable" works
+    # but "so awesome!!" doesn't. The query variable is optional; if the user
+    # just types "rollup(<predicate>)", we use the most recent query.
+    rQueryVariable = r"^(?:(\w+)\.)?"
+    # Even though arguments aren't syntactically optional, we make this is an
+    # optional match so that we can check for "arguments == None" later.
+    rArguments = r"(?:\((.+)\))?"
     # Matches a line with a Quest operator, regardless of case.
     # So Q.rollup(predicate) would match, as would rollup(predicate).
     # Groups:
-    #  1: the query variable (e.g. Q)
-    #  2: the operator name
-    #  3: the arguments (arguments aren't optional, but we make an optional match
-    #     here so we can check if they're None later).
-    rQuestOperator = re.compile(r"^(.*)\.(rollup|drilldown|store|relax|narrow)(?:\((.+)\))?",
+    #  1: the query variable (e.g. "Q", or None in the second example)
+    #  2: the operator name  (e.g. "rollup")
+    #  3: the arguments      (e.g. "predicate")
+    rQuestCommand = re.compile(rQueryVariable + rQuestOperator + rArguments,
             re.IGNORECASE)
 
     def __init__(self,
@@ -81,19 +88,19 @@ class Prompt:
             print "Please enter something other than whitespace."
         else:
             sql_match = re.match(self.rSql, answer)
-            quest_operator_match = re.match(self.rQuestOperator, answer)
+            quest_command_match = re.match(self.rQuestCommand, answer)
             if sql_match:
                 # Answer is pure SQL
                 print "** SQL DETECTED **"
                 return self.engine.run_sql(answer)
-            elif quest_operator_match:
+            elif quest_commmand_match:
                 # Answer is a Quest operator, delegate
                 print "** QUEST OPERATOR DETECTED **"
-                query_variable = quest_operator_match.group(1)
-                quest_operator = quest_operator_match.group(2)
-                arguments = quest_operator_match.group(3)
+                query_variable = quest_command_match.group(1)
+                quest_operator = quest_command_match.group(2)
+                arguments = quest_command_match.group(3)
 
-                # Initialize to None in case fail to get a query at all below
+                # Initialize to None in case we fail to set a valid +query+ below
                 query = None
 
                 if query_variable is not None:
