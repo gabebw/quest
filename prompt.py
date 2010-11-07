@@ -149,7 +149,7 @@ class Prompt:
         """Returns True if Quest is configured to always SHOW a query, even
         without user explicitly asking for it, False otherwise.
         """
-        return config.show_behavior in [config.SHOW_ALL, config.SHOW_N]
+        return config.ALWAYS_SHOW is True
 
     def init_history(self, histfile):
         """Initialize the history management.
