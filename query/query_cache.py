@@ -23,13 +23,15 @@ uppercase_list = list(uppercase)
 most_recent_query = None
 
 def increment_counter_for(variable):
-    """Increment the counter for a given variable name."""
+    """Increment the counter for a given variable name. Should be called each
+    time a new generation of a query is created (Q1.rollup(pred) -> Q2).
+    """
     counter_dict[variable] += 1
 
 def next_variable_name(letters = uppercase_list):
     """Searches _cache_ to get the next unused variable name. Checks
-    "A"-"Z", then "AA"-"ZZ", etc. and uses first letter that hasn't been
-    used yet. The letters argument allows for recursive calling with
+    "A"-"Z", then "AA"-"ZZ", etc., up to "ZZZ" inclusive, and uses first letter that hasn't
+    been used yet. The `letters` argument allows for recursive calling with
     different sets of letters.
     """
     if len(letters[0]) == 4:
@@ -41,16 +43,22 @@ def next_variable_name(letters = uppercase_list):
     unused_letters = [letter for letter in letters if letter not in cache_keys]
     if len(unused_letters) == 0:
         # All letters are used, recurse.
-        # Each letter in letters grows by one, so "A" -> "AA", "AA" -> "AAA", etc.
+        # Each letter in letters grows by one, so "A" -> "AA", "B" -> "BB", etc.
         new_letters = [letter + letter[0] for letter in letters]
         next_variable_name = next_variable_name(new_letters)
     else:
         # There are unused letters, take the first one
         next_variable_name = unused_letters[0]
+        # Initialize counter for new variable name to 0
+        counter_dict[next_variable_name] = 0
     return next_variable_name
 
 def put(key, query):
-    """Put a (key, query) pair in the cache. Returns a (key, query) tuple."""
+    """Put a (key, query) pair in the cache. If key is None, autogenerates a
+    variable name using next_variable_name. Returns a (key, query) tuple.
+    """
+    if key is None:
+        key = next_variable_name()
     cache[key] = query
     most_recent_query = query
     return (key, query)
