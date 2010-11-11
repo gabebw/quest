@@ -139,6 +139,9 @@ class Prompt:
                                 rows = new_query.show()
                                 print rows
                             print new_query
+                            # Give the new query a unique name and put it in the
+                            # query cache.
+                            query_cache.put(None, new_query)
                             return new_query
             else:
                 print "ERR: {} is not valid SQL or a Quest operator. Please try again.".format(answer)
