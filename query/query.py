@@ -54,3 +54,6 @@ class Query:
         for (operator, args) in self.sql_dict.iteritems():
             sql += " " + operator + " " + args
         return sql.strip()
+
+    def get_sql_dict(self):
+        return self.sql_dict
