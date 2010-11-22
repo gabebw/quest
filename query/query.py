@@ -23,6 +23,7 @@ class Query:
         self.engine = quest.engine
 
     def narrow(self, predicate):
+        """AND's this query with the given predicate."""
         new_sql_dict = sql_dict
         new_sql_dict["WHERE"] += " AND " + predicate
         # Set this query as the new query's parent
@@ -31,6 +32,7 @@ class Query:
         return self.child
 
     def relax(self, predicate):
+        """OR's this query with the given predicate."""
         new_sql_dict = sql_dict
         new_sql_dict["WHERE"] += " OR " + predicate
         # Set this query as the new query's parent
