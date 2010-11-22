@@ -15,29 +15,25 @@ sql_engine = create_engine('sqlite:///:memory:', echo=True)
 connection = sql_engine.connect()
 
 def run_sql(sql):
-    """Sends a pure SQL expression to the DB and returns the result. A small
-    wrapper around show().
-    """
-    t = text(sql)
+    """Sends a pure SQL expression to the DB and returns the result."""
+    query = text(sql)
     try:
-        rows = show(t)
+        return connection.execute(query)
     except sqlalchemy.exc.OperationalError as oe:
         print oe
-    else:
-        # Everything went fine, proceed.
-        print t
-        return rows
+        # Re-raise the error
+        raise oe
 
 def show(query, number_of_rows = None):
     """Actually sends the given query to the database and returns the resulting
-    rows as a list.
+    rows as a list. A wrapper around run_sql.
     If number_of_rows is None, then it checks config settings. For more
     information, see the documentation in the config module.
     """
     if query is None:
         raise ValueError("query cannot be None!")
 
-    result = connection.execute(query)
+    result = run_sql(query)
     # Fetch the correct number of rows
     if number_of_rows is None:
         # Nothing specified, consult config.
