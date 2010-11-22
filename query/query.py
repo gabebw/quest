@@ -44,8 +44,7 @@ class Query:
         """Actually sends the query to the DB. If number_of_rows is None (the
         default), then the query gets all results.
         """
-        # TODO: pass in number of rows to run_sql
-        result = self.engine.run_sql(self.build_query(), number_of_rows)
+        result = self.engine.show(self.build_query(), number_of_rows)
         return result
 
     def build_query(self):
@@ -54,7 +53,7 @@ class Query:
         # Say sql_dict = {"SELECT": "*", "FROM": "users"}
         # then sql = "SELECT * FROM users", since it's ordered.
         for (operator, args) in self.sql_dict.iteritems():
-            sql += " " + operator + " " + args
+            sql += " " + " ".join(operator, args)
         return sql.strip()
 
     def get_sql_dict(self):
