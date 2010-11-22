@@ -58,3 +58,20 @@ class Query:
 
     def get_sql_dict(self):
         return self.sql_dict
+
+    def store(self, table_name):
+        """Store result of SHOWing this query in a table with name
+        table_name. Returns True if successfully stored, False
+        otherwise.
+        """
+        q = "SELECT {} INTO {}".format(self.sql_dict["SELECT"], table_name)
+        # Iterate over sql_dict except for the SELECT part.
+        for k, v in self.sql_dict[1:].iteritems():
+            q += " " + " ".join([k,v])
+        q = q.strip()
+        try:
+            self.engine.run_sql(q)
+            return True
+        except Exception as e:
+            print "Could not store: " + e
+            return False
