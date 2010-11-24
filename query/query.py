@@ -20,7 +20,6 @@ class Query:
         self.parent = parent
         # self.child is explicitly set by operators
         self.child = None
-        self.engine = quest.engine
 
     def narrow(self, predicate):
         """AND's this query with the given predicate."""
@@ -42,7 +41,7 @@ class Query:
         """Actually sends the query to the DB. If number_of_rows is None (the
         default), then the query gets all results.
         """
-        result = self.engine.show(self.build_query(), number_of_rows)
+        result = quest.engine.show(self.build_query(), number_of_rows)
         return result
 
     def build_query(self):
@@ -60,7 +59,7 @@ class Query:
             # This is a SELECT statement, proceed
             query = "CREATE TABLE {} AS {}".format(table_name, self.statement)
             try:
-                self.engine.run_sql(query)
+                quest.engine.run_sql(query)
                 return True
             except Exception as e:
                 print "Could not store: " + e
