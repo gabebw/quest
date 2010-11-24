@@ -3,20 +3,20 @@
 # 2 children of a query, say if user does ROLLUP(Q, <pred>) and
 # ROLLUP(Q, <another_pred>).
 
-from collections import OrderedDict
-
 import quest.engine
+import lexer
+
+from sqlparse import tokens.Token.Keyword as Keyword
 
 class Query:
-    def __init__(self, sql_dict, parent = None):
-        """The sql_dict is an OrderedDict with keys for each part of a SQL query,
-        e.g. sql_dict["SELECT"] == "*", sql_dict["FROM"] == "users", etc. parent
-        is the "parent" Query class; as each Query evolves, it notes its parent
-        and child. The "top" query has no parent.
+    def __init__(self, statement, parent = None):
+        """statement must be the output of lexer.lex(i_am_a_sql_string).
+        parent is the "parent" Query class; as each Query evolves, it
+        notes its parent and child. The "top" query has no parent.
         """
-        if not isinstance(sql_dict, OrderedDict):
-            raise TypeError("sql_dict must be an OrderedDict!")
-        self.sql_dict = sql_dict
+        if not isinstance(statement, sqlparse.sql.Statement)
+            raise TypeError("statement arg must be a sqlparse.sql.Statement!")
+        self.statement = statement
         self.parent = parent
         # self.child is explicitly set by operators
         self.child = None
@@ -24,19 +24,17 @@ class Query:
 
     def narrow(self, predicate):
         """AND's this query with the given predicate."""
-        new_sql_dict = sql_dict
-        new_sql_dict["WHERE"] += " AND " + predicate
-        # Set this query as the new query's parent
-        new_query = Query(new_sql_dict, self)
+        new_statement = lexer.lex(" ".join(str(self.statement), "AND", predicate))
+        # Pass in self as new_query's parent
+        new_query = Query(new_statement, self)
         self.child = new_query
         return self.child
 
     def relax(self, predicate):
         """OR's this query with the given predicate."""
-        new_sql_dict = sql_dict
-        new_sql_dict["WHERE"] += " OR " + predicate
-        # Set this query as the new query's parent
-        new_query = Query(new_sql_dict, self)
+        new_statement = lexer.lex(" ".join(str(self.statement), "OR", predicate))
+        # Pass in self as new_query's parent
+        new_query = Query(new_statement, self)
         self.child = new_query
         return self.child
 
@@ -49,29 +47,24 @@ class Query:
 
     def build_query(self):
         """Compiles self.sql_dict to a SQL string."""
-        sql = ""
-        # Say sql_dict = {"SELECT": "*", "FROM": "users"}
-        # then sql = "SELECT * FROM users", since it's ordered.
-        for (operator, args) in self.sql_dict.iteritems():
-            sql += " " + " ".join(operator, args)
-        return sql.strip()
-
-    def get_sql_dict(self):
-        return self.sql_dict
+        return str(self.statement)
 
     def store(self, table_name):
-        """Store result of SHOWing this query in a table with name
-        table_name. Returns True if successfully stored, False
-        otherwise.
+        """Store result of running this query in a table with name
+        table_name. Returns True if successfully stored. If it wasn't
+        successfully stored, prints the error it encountered and returns
+        False.
         """
-        q = "SELECT {} INTO {}".format(self.sql_dict["SELECT"], table_name)
-        # Iterate over sql_dict except for the SELECT part.
-        for k, v in self.sql_dict[1:].iteritems():
-            q += " " + " ".join([k,v])
-        q = q.strip()
-        try:
-            self.engine.run_sql(q)
-            return True
-        except Exception as e:
-            print "Could not store: " + e
-            return False
+        if self.statement.tokens[0].ttype == Keyword.DML:
+            # CREATE TABLE AS <select>
+            # This is a SELECT statement, proceed
+            query = "CREATE TABLE {} AS {}".format(table_name, self.statement)
+            try:
+                self.engine.run_sql(query)
+                return True
+            except Exception as e:
+                print "Could not store: " + e
+                return False
+        else:
+            # Not a SELECT, ????
+            pass
