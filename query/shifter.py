@@ -56,16 +56,16 @@ def relate(p, q):
 def symbol_to_placeholder(query):
     """Convert from SQL operators to placeholder symbols."""
     new_query = ""
-    for i in xrange(len(query)):
-        if query[i] in symbol2placeholder:
-            new_query += ' ' + symbol2placeholder[query[i]] + ' '
-        elif findOperator(query[i]):
-            if findOperator(query[i+1]):
-                new_query += ' %s%s ' % (query[i], query[i+1])
+    for index, token in enumerate(query):
+        if token in symbol2placeholder:
+            new_query += ' ' + symbol2placeholder[token] + ' '
+        elif findOperator(token):
+            if findOperator(query[index+1]):
+                new_query += ' %s%s ' % (token, query[index+1])
             else:
-                new_query += ' %s ' % query[i]
+                new_query += ' %s ' % token
         else:
-            new_query += query[i]
+            new_query += token
     return new_query
 
 def placeholder_to_symbol(query):
