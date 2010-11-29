@@ -303,27 +303,21 @@ def parseStringAndShift(query, att, shift_type):
             # Haven't found WHERE or HAVING yet, keep going.
             next
 
-        if att in token and findOperator(token) and ("'" in split_query[i+1] or split_query[i+1].isdigit()):
+        if att in token and findOperator(token):
             # "att< 3" (i.e. no space between attribute and operator)
             # or
             # "att< 'string'"
-            did_shift = True
+
+            # Rewrite the query so that the attribute and operator are
+            # separate tokens, and don't advance i.
+            print split_query
             operator = findOperator(token)
             tokens = rOperator.split(token)
-
-            if tokens[-1] == '':
-                # FIXME: ???
-                value = split_query[i+1]
-                value = shift(att, value, shift_type)
-                split_query[i] = att + operator
-                split_query[i+1] = value
-                i += 1
-
-            else:
-                value = tokens[-1]
-                value = shift(att, value, shift_type)
-                split_query[i] = att + operator + value
-
+            # "att<" becomes "att", "<", i.e. separate tokens
+            split_query[i] = att
+            split_query.insert(i+1, operator)
+            print split_query
+            next
 
         elif att in token and findOperator(split_query[i+1]) and ("'" in split_query[i+2] or split_query[i+2].isdigit()):
             # "att > 3" (i.e. space between attribute and operator)
