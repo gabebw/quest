@@ -430,10 +430,13 @@ def parseStringAndShift(query, att, shift_type):
         return final_query
 
 
-    final_query = placeholder_to_symbol(' '.join(split_query))
-    print final_query
-    return final_query
+def rshift(query, attribute):
+    """Convenience method."""
+    return parseStringAndShift(query, attribute, RSHIFT)
 
+def lshift(query, attribute):
+    """Convenience method."""
+    return parseStringAndShift(query, attribute, LSHIFT)
 
 def test_mysql(attribute = 'movie_id', shift_type = LSHIFT):
     """Test on MySQL database."""
