@@ -450,17 +450,17 @@ def test_sqlite(attribute, shift_type):
     """Test on Doug's SQLite database."""
     sqlite3_db = sqlite3.connect("baseball.db")
     #sqlite3_query = """select * from playerStats where playerStats.nameFirst like 'David'"""
-    sqlite3_query = "SELECT * FROM playerStats WHERE playerStats.age Q!> 36"
+    sqlite3_query = "SELECT * FROM playerStats WHERE playerStats.age >= 3"
     try:
         result = execute_query(sqlite3_db, sqlite3_query)
     except sqlite3.OperationalError as oe:
-        print "Check query syntax."
+        print "Check query syntax: %s" % sqlite3_query
     else:
         if result is None:
             print "No results returned, not shifting."
             return None
         else:
-            parseStringAndShift(sqlite3_query, attribute, shift_type)
+            print parseStringAndShift(sqlite3_query, attribute, shift_type)
 
 #attribute = raw_input('Enter the attribute that you would like to perform a shift on: '),
 #shift_type = int(raw_input('What shift would you like to perform? 0=Right Shift 1=Left Shift'))
