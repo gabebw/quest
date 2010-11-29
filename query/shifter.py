@@ -321,6 +321,9 @@ def parseStringAndShift(query, att, shift_type):
 
         elif att in token and findOperator(split_query[i+1]) and ("'" in split_query[i+2] or split_query[i+2].isdigit()):
             # "att > 3" (i.e. space between attribute and operator)
+            # or
+            # "att > 'string'"
+
             did_shift = True
             operator = findOperator(split_query[i+1])
             tokens = rOperator.split(split_query[i+1])
@@ -328,17 +331,18 @@ def parseStringAndShift(query, att, shift_type):
             if tokens[-1] == '':
                 # FIXME: why check for an empty string here?
                 value = split_query[i+2]
-                value = shift(att, value, shift_type)
+                new_value = shift(att, value, shift_type)
+                # end up with "att > 4", using the example above
                 split_query[i] = att
                 split_query[i+1] = operator
-                split_query[i+2] = value
+                split_query[i+2] = new_value
                 i += 2
 
             else:
                 value = tokens[-1]
-                value = shift(att, value, shift_type)
+                new_value = shift(att, value, shift_type)
                 split_query[i] = att
-                split_query[i+1] = operator + value
+                split_query[i+1] = operator + new_value
                 i += 1
 
 
@@ -377,41 +381,41 @@ def parseStringAndShift(query, att, shift_type):
             # "att IN (3,4,5)"
             did_shift = True
 
+            # Since "3,4,5" is translated to "$3,4,5#", we set i to
+            # the first index after the "$" and iterate until we
+            # hit the ending "#"
             i += 3
             while split_query[i] != '#':
                 split_query[i] = shift(att, split_query[i], shift_type)
                 i += 2
 
-        elif token == att and split_query[i+1].lower() == 'not' and split_query[i+2].lower() == 'in' and ("'" in split_query[i+4] or split_query[i+4].isdigit()):
+        elif token == att and [s.lower() for s in split_query[i:i+2]] == ['not', 'in'] and ("'" in split_query[i+4] or split_query[i+4].isdigit()):
             # "att NOT IN 'string'
             # or
             # "att NOT IN (3,4,5)"
             did_shift = True
 
-            # Since "3,4,5" is translated to "$3,4,5#", we set i to
-            # the first index after the "$" and iterate until we
-            # hit the ending "#"
             i += 4
             while split_query[i] != '#':
                 split_query[i] = shift(att, split_query[j], shift_type)
                 i += 2
 
         elif token == att and split_query[i+1].lower() == 'like':
-            # "x LIKE comparison"
+            # "att LIKE comparison"
             did_shift = True
             comparison = split_query[i+2]
             split_query[i+2] = shift(att, comparison, shift_type)
             i += 2
 
-        elif token == att and split_query[i+1].lower() == 'not' and split_query[i+2].lower() == 'like':
-            # "x NOT LIKE comparison"
+        elif token == att and [s.lower() for s in split_query[i:i+2]] == ['not', 'like']:
+            # "att NOT LIKE comparison"
             did_shift = True
             comparison = split_query[i+3]
             split_query[i+3] = shift(att, comparison, shift_type)
             i += 3
 
         elif token == att and split_query[i+1] == '#' and findOperator(split_query[i+2]):
-            # "x # <operator> operand"
+            # "att # <operator> operand"
             did_shift = True
             operand = split_query[i+3]
             split_query[i+3] = shift(att, operand, shift_type)
@@ -421,6 +425,10 @@ def parseStringAndShift(query, att, shift_type):
     if not did_shift:
         print "Didn't shift: attribute not found in supplied query."
         return query
+    else:
+        final_query = placeholder_to_symbol(' '.join(split_query))
+        return final_query
+
 
     final_query = placeholder_to_symbol(' '.join(split_query))
     print final_query
