@@ -2,12 +2,12 @@ import re
 import datetime
 from datetime import timedelta
 import operator
-import sys
 
 try:
     import MySQLdb
 except ImportError as ie:
     print("!!! Could not import MySQLdb. Continuing...")
+
 import sqlite3
 
 # Magic constants.
