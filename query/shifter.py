@@ -220,7 +220,10 @@ def shift(attr_name, attr_value, shift_type):
     elif attr_type in (str, unicode):
         # attr is a string of some sort.
 
-        split_attr_value = attr_value.split("'")[1]
+        # The attr without the enclosing quotes or table references
+        # So "table.'attribute'" -> "attribute"
+        bare_attr_value = attr_value.split("'")[1]
+
         # Used for RSHIFT/LSHIFT queries, where ?SHIFT on a <> gets the
         # first result.
         #exists = False
