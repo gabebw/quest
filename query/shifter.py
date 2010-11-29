@@ -1,7 +1,6 @@
 import re
 import datetime
-from datetime import timedelta
-import operator
+from operator import itemgetter
 
 try:
     import MySQLdb
