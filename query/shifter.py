@@ -464,7 +464,4 @@ def test_sqlite(attribute, shift_type):
 
 #attribute = raw_input('Enter the attribute that you would like to perform a shift on: '),
 #shift_type = int(raw_input('What shift would you like to perform? 0=Right Shift 1=Left Shift'))
-attribute = 'age'
-shift_type = RSHIFT
-
-test_sqlite(attribute, shift_type)
+test_sqlite('age', RSHIFT)
