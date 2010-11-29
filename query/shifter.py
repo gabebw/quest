@@ -70,13 +70,9 @@ def symbol_to_placeholder(query):
 
 def placeholder_to_symbol(query):
     """Convert from placeholders back to real SQL operators."""
-    new_query = ""
-
-    for i in xrange(len(query)):
-        if query[i] in placeholder2symbol:
-            new_query += placeholder2symbol[query[i]]
-        else:
-            new_query += query[i]
+    # Get the token from placeholder2symbol, or if it's not there
+    # just return the plain token.
+    new_query = ''.join([placeholder2symbol.get(token, token) for token in query])
 
     return new_query.replace(' . ', '.')
 
