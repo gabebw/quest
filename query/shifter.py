@@ -31,9 +31,11 @@ meta_dict = {}
 db = None
 # DB cursor
 cursor = None
+# A list of all of the column names
+column_names = None
 
 # Result from executing query in connect(query)
-global_result = None
+result_rows = None
 
 # Map some SQL symbols to placeholders. The placeholders are used as
 # dummy tokens for easier string mangling.
@@ -110,43 +112,51 @@ def combineTimestampTokens(array):
 def execute_query(db, query):
     """Tries to run the given query using the given database connection.
     db is a DB connection (of any type), and the query is the (string)
-    representation of the query to execute.
+    representation of the query to execute. Returns None if no rows are
+    in the result set, True otherwise.
+    May raise a sqlite3.OperationalError error.
     """
-    global global_result
+    global result_rows
     global cursor
+
     cursor = db.cursor()
     try:
         cursor.execute(query)
-        global_result = cursor.fetchall()
+        result_rows = cursor.fetchall()
     except sqlite3.OperationalError as oe:
         # Just raise it
         raise oe
 
-    if len(global_result) == 0:
+    if len(result_rows) == 0:
         # No results
         return None
+    else:
+        global column_names
+        first_row = result_rows[0]
+        # cursor.description[i] is like
+        # ('playerID', None, None, None, None, None, None)
+        column_names = [d[0] for d in cursor.description]
 
-    for i in xrange(len(global_result[0])):
-        # Map a column name to its type (e.g. int)
-        # meta_dict["movie_id"] = int
-        print cursor.description[i]
-        column_name = cursor.description[i][0]
-        column_type = type(global_result[0][i])
-        meta_dict[column_name] = column_type
+        for index, value in enumerate(first_row):
+            # Map a column name to its type (e.g. int)
+            # meta_dict["movie_id"] = int
+            column_name = column_names[index]
+            column_type = type(value)
+            meta_dict[column_name] = column_type
+        return True
 
-    return True
-
-def index(attr_name):
-    """Get index of attr_name in global_result. Returns None if
-    attr_name isn't in global_result.
+def column_index(column_name):
+    """Returns index of column with given name in result_rows, or None
+    if no column in result_rows has the given name.
     """
-    for i in xrange(len(global_result[0])):
-        column_name = cursor.description[i][0]
-        if column_name == attr_name:
-            return i
-    print 'No attribute of this name is present in the result set of the',
-    print 'query you provided'
-    return None
+
+    global column_names
+    try:
+        return column_names.index(column_name)
+    except ValueError as ve:
+        #print 'No attribute of this name is present in the result set of the',
+        #print 'query you provided'
+        return None
 
 def shift(attr_name, attr_value, shift_type):
     """Shift attribute with given name and value according to
@@ -218,37 +228,49 @@ def shift(attr_name, attr_value, shift_type):
         split_attr_value = attr_value.split("'")[1]
         # Used for RSHIFT/LSHIFT queries, where ?SHIFT on a <> gets the
         # first result.
-        exists = False
-        i = index(attr_name)
-        # FIXME: what does sorted_data's structure look like?
-        sorted_data = sorted(global_result, key = operator.itemgetter(i))
-        data_index = 0
-        for j in xrange(len(global_result)):
-            if split_attr_value == sorted_data[j][i]:
-                exists = True
-                data_index = j
-                break
+        #exists = False
 
-        if not exists and len(sorted_data) > 0:
-            return "'%s'" % sorted_data[0][i]
-
-        if shift_type == RSHIFT:
-            if data_index < len(global_result)-1:
-                # We can RSHIFT, do so.
-                return "'%s'" % sorted_data[data_index+1][i]
-            else:
-                # We can't RSHIFT, return the unshifted value.
-                print "End of data set! RSHIFT not performed."
-                return attr_value
-
+        attr_index = column_index(bare_attr_value)
+        if attr_index is None:
+            # Not a valid column name, don't shift.
+            return attr_value
         else:
-            if data_index > 0:
-                # We can LSHIFT, do so.
-                return "'%s'" % sorted_data[data_index-1][i]
+            # rows_sorted_by_attr_value is a copy of result_rows, with each row sorted by
+            # the value of its attr_index'th column, which is the column
+            # corresponding to the attr we're shifting.
+            rows_sorted_by_attr_value = sorted(result_rows, key = itemgetter(attr_index))
+            data_index = 0
+            for index, row in enumerate(rows_sorted_by_attr_value):
+                if bare_attr_value == row[attr_index]:
+                    #exists = True
+                    data_index = index
+                    break
+
+            # If we didn't find anything exactly matching the attribute,
+            # return the corresponding column of the first row of the result
+            #if not exists and len(rows_sorted_by_attr_value) > 0:
+                #return "'%s'" % rows_sorted_by_attr_value[0][attr_index]
+
+            if shift_type == RSHIFT:
+                if data_index < len(result_rows)-1:
+                    # We can RSHIFT, do so.
+                    # data_index is where we found the attribute, so return
+                    # the next item in the sorted rows (e.g. "David" is
+                    # followed by "Eric", so we return "Eric")
+                    return "'%s'" % rows_sorted_by_attr_value[data_index+1][attr_index]
+                else:
+                    # We can't RSHIFT, return the unshifted value.
+                    print "End of data set! RSHIFT not performed."
+                    return attr_value
+
             else:
-                # We can't LSHIFT, return the unshifted value.
-                print "End of data set! LSHIFT not performed."
-                return attr_value
+                if data_index > 0:
+                    # We can LSHIFT, do so.
+                    return "'%s'" % rows_sorted_by_attr_value[data_index-1][attr_index]
+                else:
+                    # We can't LSHIFT, return the unshifted value.
+                    print "End of data set! LSHIFT not performed."
+                    return attr_value
 
     # Something happened, we couldn't shift at all. Return unshifted
     # value.
