@@ -316,7 +316,7 @@ def parseStringAndShift(query, att, shift_type):
             print split_query
             next
 
-        elif att in token and findOperator(split_query[i+1]) and ("'" in split_query[i+2] or split_query[i+2].isdigit()):
+        elif att == token and findOperator(split_query[i+1]) and ("'" in split_query[i+2] or split_query[i+2].isdigit()):
             # "att > 3" (i.e. space between attribute and operator)
             # or
             # "att > 'string'"
@@ -342,8 +342,7 @@ def parseStringAndShift(query, att, shift_type):
                 split_query[i+1] = operator + new_value
                 i += 1
 
-
-        elif token == att and split_query[i+1].lower() == 'not' and split_query[i+2].lower() == 'between':
+        elif token == att and [s.lower() for s in split_query[i:i+2]] == ['not', 'between']:
             # "x NOT BETWEEN l_value AND r_value"
             did_shift = True
 
@@ -425,7 +424,6 @@ def parseStringAndShift(query, att, shift_type):
     else:
         final_query = placeholder_to_symbol(' '.join(split_query))
         return final_query
-
 
 def rshift(query, attribute):
     """Convenience method."""
