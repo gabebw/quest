@@ -285,7 +285,6 @@ def parseStringAndShift(query, att, shift_type):
     # Convert some of the SQL symbols in the query to placeholders.
     query_with_placeholders = symbol_to_placeholder(query)
     split_query_with_placeholders = query_with_placeholders.split()
-
     split_query = combineTimestampTokens(split_query_with_placeholders)
 
     # Was the previous clause WHERE or HAVING?
@@ -312,14 +311,13 @@ def parseStringAndShift(query, att, shift_type):
             # "att< 'string'"
 
             # Rewrite the query so that the attribute and operator are
-            # separate tokens, and don't advance i.
-            print split_query
+            # separate tokens, and let the other if statements handle
+            # the rewritten query
             operator = findOperator(token)
             tokens = rOperator.split(token)
             # "att<" becomes "att", "<", i.e. separate tokens
             split_query[i] = att
             split_query.insert(i+1, operator)
-            print split_query
             next
 
         elif att == token and findOperator(split_query[i+1]) and ("'" in split_query[i+2] or split_query[i+2].isdigit()):
@@ -366,6 +364,7 @@ def parseStringAndShift(query, att, shift_type):
         elif token == att and split_query[i+1].lower() == 'between':
             # "x BETWEEN l_value AND r_value"
             did_shift = True
+
             l_value = split_query[i+2]
             r_value = split_query[i+4]
             new_l_value = shift(att, l_value, shift_type)
@@ -405,6 +404,7 @@ def parseStringAndShift(query, att, shift_type):
         elif token == att and split_query[i+1].lower() == 'like':
             # "att LIKE comparison"
             did_shift = True
+
             comparison = split_query[i+2]
             split_query[i+2] = shift(att, comparison, shift_type)
             i += 2
@@ -412,6 +412,7 @@ def parseStringAndShift(query, att, shift_type):
         elif token == att and [s.lower() for s in split_query[i:i+2]] == ['not', 'like']:
             # "att NOT LIKE comparison"
             did_shift = True
+
             comparison = split_query[i+3]
             split_query[i+3] = shift(att, comparison, shift_type)
             i += 3
@@ -419,6 +420,7 @@ def parseStringAndShift(query, att, shift_type):
         elif token == att and split_query[i+1] == '#' and findOperator(split_query[i+2]):
             # "att # <operator> operand"
             did_shift = True
+
             operand = split_query[i+3]
             split_query[i+3] = shift(att, operand, shift_type)
             i += 3
