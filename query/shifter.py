@@ -3,11 +3,10 @@ import datetime
 from operator import itemgetter
 
 try:
-    import MySQLdb
+    import sqlite3
 except ImportError as ie:
-    print("!!! Could not import MySQLdb. Continuing...")
-
-import sqlite3
+    import sys
+    sys.exit("!!! Could not import sqlite3!")
 
 # Magic constants.
 RSHIFT = 0
@@ -443,6 +442,12 @@ def lshift(query, attribute):
 
 def test_mysql(attribute = 'movie_id', shift_type = LSHIFT):
     """Test on MySQL database."""
+    try:
+        import MySQLdb
+    except ImportError as ie:
+        import sys
+        sys.exit("!!! Could not import MySQLdb!")
+
     mysql_db = MySQLdb.connect("localhost", "root", "pass1", "assign3")
     mysql_query = 'select * from movie where movie_id between 2 and 3'
 
@@ -451,6 +456,7 @@ def test_mysql(attribute = 'movie_id', shift_type = LSHIFT):
 
 def test_sqlite(attribute, shift_type):
     """Test on Doug's SQLite database."""
+
     sqlite3_db = sqlite3.connect("baseball.db")
     #sqlite3_query = """select * from playerStats where playerStats.nameFirst like 'David'"""
     sqlite3_query = "SELECT * FROM playerStats WHERE playerStats.age >= 3"
@@ -465,4 +471,5 @@ def test_sqlite(attribute, shift_type):
         else:
             print parseStringAndShift(sqlite3_query, attribute, shift_type)
 
-test_sqlite('nameFirst', RSHIFT)
+if __name__ == "__main__":
+    test_sqlite('age', RSHIFT)
