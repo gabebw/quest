@@ -22,6 +22,8 @@ time_regexp = re.compile(r"\d{2}:\d{2}:\d{2}")
 
 # Regexp to match SQL equality operators
 rOperator = re.compile(r'(%s)' % '|'.join(all_ops))
+# Used to split a SQL string into meaningful chunks
+rChunker = re.compile(r'(%s|\.|\s)' % '|'.join(all_ops))
 
 # Maps a column name to its type, e.g. movie_id => int
 meta_dict = {}
@@ -55,18 +57,22 @@ def relate(p, q):
 
 def symbol_to_placeholder(query):
     """Convert from SQL operators to placeholder symbols."""
-    new_query = ""
-    for index, token in enumerate(query):
+    new_query = []
+    chunks = rChunker.split(query)
+    # Remove whitespace tokens and empty strings
+    chunks = [str(x) for x in chunks if not (x.isspace() or x == '')]
+    for index, token in enumerate(chunks):
         if token in symbol2placeholder:
-            new_query += ' ' + symbol2placeholder[token] + ' '
+            new_query.append(symbol2placeholder[token])
         elif findOperator(token):
-            if findOperator(query[index+1]):
-                new_query += ' %s%s ' % (token, query[index+1])
+            if findOperator(chunks[index+1]):
+                new_query.append('%s%s' % (token, chunks[index+1]))
             else:
-                new_query += ' %s ' % token
+                new_query.append(token)
         else:
-            new_query += token
-    return new_query
+            new_query.append(token)
+
+    return ' '.join(new_query)
 
 def placeholder_to_symbol(query):
     """Convert from placeholders back to real SQL operators."""
