@@ -4,6 +4,7 @@
 # ROLLUP(Q, <another_pred>).
 
 import quest.engine
+import shifter
 import lexer
 
 from sqlparse import tokens.Token.Keyword as Keyword
@@ -24,18 +25,12 @@ class Query:
     def narrow(self, predicate):
         """AND's this query with the given predicate."""
         new_statement = lexer.lex(" ".join(str(self.statement), "AND", predicate))
-        # Pass in self as new_query's parent
-        new_query = Query(new_statement, self)
-        self.child = new_query
-        return self.child
+        return set_child_and_return(new_statement)
 
     def relax(self, predicate):
         """OR's this query with the given predicate."""
         new_statement = lexer.lex(" ".join(str(self.statement), "OR", predicate))
-        # Pass in self as new_query's parent
-        new_query = Query(new_statement, self)
-        self.child = new_query
-        return self.child
+        return set_child_and_return(new_statement)
 
     def show(self, number_of_rows = None):
         """Actually sends the query to the DB. If number_of_rows is None (the
@@ -66,4 +61,19 @@ class Query:
                 return False
         else:
             # Not a SELECT, ????
-            pass
+            raise TypeError("Query is not a SELECT, what's going on?: %s" % self)
+
+    def lshift(self, attr):
+        """LSHIFT an attribute of this query."""
+        return set_child_and_return(shifter.lshift(self, attr))
+
+    def rshift(self, attr):
+        """RSHIFT an attribute of this query."""
+        return set_child_and_return(shifter.rshift(self, attr))
+
+    def set_child_and_return(self, new_statement):
+        """Set new_query as self.child and return new_query."""
+        # Pass in self as new_query's parent
+        new_query = Query(new_statement, self)
+        self.child = new_query
+        return self.child
