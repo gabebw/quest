@@ -191,6 +191,10 @@ def shift(attr_name, attr_value, shift_type):
         attr_value = attr_value.split("'")[1]
 
         if date_regexp.match(attr_value):
+            # Set variables outside the if so they have non-local scope
+            base_date = None
+            time_shift_amount = None
+
             if time_regexp.match(attr_value):
                 # This is a date and time, so shift by 1 second forward or back
                 time_shift_amount = datetime.timedelta(seconds = 1)
@@ -202,20 +206,21 @@ def shift(attr_name, attr_value, shift_type):
                 hour, minute, second = [int(t) for t in time_segment]
 
                 base_date = datetime.datetime(year, month, day, hour, minute, second)
-                if shift_type == RSHIFT:
-                    return "'%s'"% (base_date + time_shift_amount)
-                else:
-                    return "'%s'"% (base_date - time_shift_amount)
             else:
                 # This is a date (without a time), so shift by 1 day forward or back
                 time_shift_amount = datetime.timedelta(days = 1)
                 date = attr_value.split('-')
                 year, month, day = [int(t) for t in date]
                 base_date = datetime.date(year, month, day)
+
+            if base_date is None or time_shift_amount is None:
+                # Couldn't shift
+                return attr_value
+            else:
                 if shift_type == RSHIFT:
-                    return "'%s'"  % (base_date + time_shift_amount)
+                    return "'%s'"% (base_date + time_shift_amount)
                 else:
-                    return "'%s'"  % (base_date - time_shift_amount)
+                    return "'%s'"% (base_date - time_shift_amount)
 
     elif attr_type in (str, unicode):
         # attr is a string of some sort.
