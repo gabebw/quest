@@ -63,6 +63,12 @@ class Query:
             # Not a SELECT, ????
             raise TypeError("Query is not a SELECT, what's going on?: %s" % self)
 
+    def relate(self, other_query):
+        """Return a string representation of a natural inner join query
+        between this query and other_query.
+        """
+        return "SELECT * FROM %s NATURAL INNER JOIN %s" % (self, other_query)
+
     def lshift(self, attr):
         """LSHIFT an attribute of this query."""
         return set_child_and_return(shifter.lshift(self, attr))

@@ -50,10 +50,6 @@ symbol2placeholder = {
 # keys switched
 placeholder2symbol = dict([(v, k) for (k, v) in symbol2placeholder.iteritems()])
 
-def relate(p, q):
-    """Return a string representation of a natural inner join query using queries p and q."""
-    return "select * from %s natural inner join %s" % (p, q)
-
 def symbol_to_placeholder(query):
     """Convert from SQL operators to placeholder symbols."""
     new_query = []
@@ -434,11 +430,11 @@ def parseStringAndShift(query, att, shift_type):
 
 def rshift(query, attribute):
     """Convenience method."""
-    return parseStringAndShift(query, attribute, RSHIFT)
+    return parseStringAndShift(str(query), attribute, RSHIFT)
 
 def lshift(query, attribute):
     """Convenience method."""
-    return parseStringAndShift(query, attribute, LSHIFT)
+    return parseStringAndShift(str(query), attribute, LSHIFT)
 
 def test_mysql(attribute = 'movie_id', shift_type = LSHIFT):
     """Test on MySQL database."""
