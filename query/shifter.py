@@ -229,10 +229,6 @@ def shift(attr_name, attr_value, shift_type):
         # So "table.'attribute'" -> "attribute"
         bare_attr_value = attr_value.split("'")[1]
 
-        # Used for RSHIFT/LSHIFT queries, where ?SHIFT on a <> gets the
-        # first result.
-        #exists = False
-
         attr_index = column_index(bare_attr_value)
         if attr_index is None:
             # Not a valid column name, don't shift.
@@ -245,21 +241,17 @@ def shift(attr_name, attr_value, shift_type):
             data_index = 0
             for index, row in enumerate(rows_sorted_by_attr_value):
                 if bare_attr_value == row[attr_index]:
-                    #exists = True
                     data_index = index
                     break
-
-            # If we didn't find anything exactly matching the attribute,
-            # return the corresponding column of the first row of the result
-            #if not exists and len(rows_sorted_by_attr_value) > 0:
-                #return "'%s'" % rows_sorted_by_attr_value[0][attr_index]
 
             if shift_type == RSHIFT:
                 if data_index < len(result_rows)-1:
                     # We can RSHIFT, do so.
                     # data_index is where we found the attribute, so return
-                    # the next item in the sorted rows (e.g. "David" is
-                    # followed by "Eric", so we return "Eric")
+                    # the next item that's actually in the sorted rows
+                    # (e.g. "David" is in the DB, and so is "Eric", and
+                    # "Eric" is the next-highest value after "David", so
+                    # we return "Eric")
                     return "'%s'" % rows_sorted_by_attr_value[data_index+1][attr_index]
                 else:
                     # We can't RSHIFT, return the unshifted value.
