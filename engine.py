@@ -2,27 +2,32 @@
 
 import sys
 
-from sqlalchemy import create_engine
-from sqlalchemy.sql.expression import text
-import sqlalchemy.exc
+import MySQLdb
 
-import config as config
+import config
 from query import query_cache
 import util
 
-# in-memory SQLite engine
-sql_engine = create_engine('sqlite:///:memory:', echo=True)
-connection = sql_engine.connect()
+db = MySQLdb.connect(host = config.db_host,
+        user = config.db_user,
+        passwd = config.db_password,
+        db = config.db_name)
+cursor = db.cursor()
 
 def run_sql(sql):
-    """Sends a pure SQL expression to the DB and returns the result."""
-    query = text(sql)
+    """
+    Sends a pure SQL expression to the DB and returns the result.
+    After running this, use engine.cursor.fetchone() or
+    engine.cursor.fetchalL() to fetch results. Returns the cursor
+    object.
+    """
     try:
-        return connection.execute(query)
-    except sqlalchemy.exc.OperationalError as oe:
-        print oe
+        cursor.execute(query)
+        return cursor
+    except Exception as e
+        print e
         # Re-raise the error
-        raise oe
+        raise e
 
 def show(query, number_of_rows = None):
     """Actually sends the given query to the database and returns the resulting
@@ -33,29 +38,21 @@ def show(query, number_of_rows = None):
     if query is None:
         raise ValueError("query cannot be None!")
 
-    result = run_sql(query)
+    run_sql(query)
     # Fetch the correct number of rows
     if number_of_rows is None:
         # Nothing specified, consult config.
         if config.ROWS_TO_SHOW == config.ALL_ROWS:
-            return result.fetchall()
+            return cursor.fetchall()
         else:
             if util.is_integer(config.ROWS_TO_SHOW):
-                fetched_rows = result.fetchmany(config.ROWS_TO_SHOW)
-                # Since number_of_rows_to_show may be less than the total number of
-                # rows, and the ResultProxy only closes when all rows are exhausted,
-                # explicitly close the ResultProxy.
-                result.close()
+                fetched_rows = cursor.fetchmany(config.ROWS_TO_SHOW)
                 return fetched_rows
             else:
                 raise ValueError("number_of_rows ({}) is not an int!".format(number_of_rows))
     else:
         if util.is_integer(number_of_rows):
-            fetched_rows = result.fetchmany(int(number_of_rows))
-            # Since number_of_rows may be less than the total number of
-            # rows, and the ResultProxy only closes when all rows are exhausted,
-            # explicitly close the ResultProxy.
-            result.close()
+            fetched_rows = cursor.fetchmany(int(number_of_rows))
             return fetched_rows
         else:
             raise ValueError("number_of_rows ({}) is not an int!".format(number_of_rows))
