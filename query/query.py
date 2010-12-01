@@ -5,18 +5,14 @@
 
 import quest.engine
 import shifter
-import lexer
-
-from sqlparse import tokens.Token.Keyword as Keyword
 
 class Query:
-    def __init__(self, statement, parent = None):
-        """statement must be the output of lexer.lex(i_am_a_sql_string).
+    def __init__(self, query_string, parent = None):
+        """
+        query_string is the string representation of the query.
         parent is the "parent" Query class; as each Query evolves, it
         notes its parent and child. The "top" query has no parent.
         """
-        if not isinstance(statement, sqlparse.sql.Statement)
-            raise TypeError("statement arg must be a sqlparse.sql.Statement!")
         self.statement = statement
         self.parent = parent
         # self.child is explicitly set by operators
@@ -36,12 +32,8 @@ class Query:
         """Actually sends the query to the DB. If number_of_rows is None (the
         default), then the query gets all results.
         """
-        result = quest.engine.show(self.build_query(), number_of_rows)
+        result = quest.engine.show(self.statement, number_of_rows)
         return result
-
-    def build_query(self):
-        """Compiles self.sql_dict to a SQL string."""
-        return str(self.statement)
 
     def store(self, table_name):
         """Store result of running this query in a table with name
