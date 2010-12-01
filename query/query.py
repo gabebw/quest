@@ -29,14 +29,16 @@ class Query:
         return set_child_and_return(new_statement)
 
     def show(self, number_of_rows = None):
-        """Actually sends the query to the DB. If number_of_rows is None (the
+        """
+        Actually sends the query to the DB. If number_of_rows is None (the
         default), then the query gets all results.
         """
         result = quest.engine.show(self.statement, number_of_rows)
         return result
 
     def store(self, table_name):
-        """Store result of running this query in a table with name
+        """
+        Store result of running this query in a table with name
         table_name. Returns True if successfully stored. If it wasn't
         successfully stored, prints the error it encountered and returns
         False.
@@ -56,7 +58,8 @@ class Query:
             raise TypeError("Query is not a SELECT, what's going on?: %s" % self)
 
     def relate(self, other_query):
-        """Return a string representation of a natural inner join query
+        """
+        Return a string representation of a natural inner join query
         between this query and other_query.
         """
         return "SELECT * FROM %s NATURAL INNER JOIN %s" % (self, other_query)
