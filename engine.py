@@ -8,10 +8,19 @@ import config
 from query import query_cache
 import util
 
-db = MySQLdb.connect(host = config.db_host,
-        user = config.db_user,
-        passwd = config.db_password,
-        db = config.db_name)
+try:
+    db = MySQLdb.connect(host = config.db_host,
+            user = config.db_user,
+            passwd = config.db_password,
+            db = config.db_name)
+except MySQLdb.MySQLError as e:
+    print "Couldn't connect! Maybe your connection info is wrong:"
+    print "db_host: %s" % config.db_host
+    print "db_user: %s" % config.db_user
+    print "db_password: %s" % config.db_password
+    print "db_name: %s" % config.db_name
+    raise e
+
 cursor = db.cursor()
 
 def run_sql(sql):
