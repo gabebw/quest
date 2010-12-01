@@ -8,7 +8,8 @@ from quest.query import query_cache
 import quest.config as config
 
 class Prompt:
-    """A basic REPL (read-eval-print-loop) that passes user input to the Quest engine.
+    """
+    A basic REPL (read-eval-print-loop) that passes user input to the Quest engine.
 
     It accepts pure SQL or Quest-specific operators.
     It shows an error message (but doesn't raise an error) on invalid input.
@@ -153,13 +154,15 @@ class Prompt:
             return False
 
     def should_show_query(self):
-        """Returns True if Quest is configured to always SHOW a query, even
+        """
+        Returns True if Quest is configured to always SHOW a query, even
         without user explicitly asking for it, False otherwise.
         """
         return config.ALWAYS_SHOW is True
 
     def init_history(self, histfile):
-        """Initialize the history management.
+        """
+        Initialize the history management.
 
         Reads histfile and registers save_history() to run atexit. Prints an
         error message if it fails.
