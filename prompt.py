@@ -18,7 +18,7 @@ class Prompt:
     rSql = re.compile(r"^(select|update|insert) .+", re.IGNORECASE)
 
     # Quest-specific operators
-    rQuestOperator =r"(rollup|drilldown|store|relax|narrow)"
+    rQuestOperator =r"(rollup|drilldown|store|relax|narrow|relate)"
     # A query variable has to be word characters, so "my_query_variable" works
     # but "so awesome!!" doesn't. The query variable is optional; if the user
     # just types "rollup(<predicate>)", we use the most recent query.
@@ -68,11 +68,15 @@ class Prompt:
         print """
         Quest: QUery Engine for Selecting Tables
         SQL: You can type in any valid SQL expression to see its result.
-        You can also use some Quest-specific operators:
-        \trollup(Q): rolls up a query Q
-        \tdrilldown(Q): drilldown on a query Q
-        \trelax(Q, r): "OR" the select clause of Q with predicate r
-        \tnarrow(Q, r): "AND" the select clause of Q with predicate r
+        You can also use some Quest-specific operators. Note that the
+        "Q." is optional; if you don't specify a query to perform a
+        Quest operation on, the most recent query will be used.
+        \t[Q.]rollup(attr): rolls up on a query Q on given attribute
+        \t[Q.]drilldown(attr): drills down on a query Q on given attribute
+        \t[Q.]relax(pred): "OR" the select clause of Q with given predicate
+        \t[Q.]narrow(pred): "AND" the select clause of Q with given predicate
+        \t[Q.]relate(other_query): Perform a natural join with other_query
+        \t[Q.]store(table_name): Store the result of running Q in a table with the given name.
         """
 
     def handle_answer(self, answer):
