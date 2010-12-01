@@ -42,19 +42,19 @@ class Query:
         """
         Store result of running this query in a table with name
         table_name. Returns True if successfully stored. If it wasn't
-        successfully stored, prints the error it encountered and returns
-        False.
+        successfully stored, raises the error it encountered with some
+        extra Quest-specific info prepended to the error message.
         """
         if self.statement.tokens[0].ttype == Keyword.DML:
-            # CREATE TABLE AS <select>
             # This is a SELECT statement, proceed
-            query = "CREATE TABLE {} AS {}".format(table_name, self.statement)
+            # CREATE TABLE new_table_name SELECT ...
+            query = "CREATE TABLE %s %s" % (table_name, self.statement)
             try:
                 quest.engine.run_sql(query)
                 return True
             except Exception as e:
-                print "Could not store: " + e
-                return False
+                # Prepend some of our own info onto the exception
+                raise e.__class__("Could not store: %s" % repr(e))
         else:
             # Not a SELECT, ????
             raise TypeError("Query is not a SELECT, what's going on?: %s" % self)
