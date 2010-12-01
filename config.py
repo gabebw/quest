@@ -20,3 +20,15 @@ ALWAYS_SHOW = True
 # When we are asked to show a query, and user doesn't specify how many rows to
 # show, we show this many rows. Can be either ALL_ROWS or an integer.
 ROWS_TO_SHOW = ALL_ROWS
+
+
+# DB configuration. You should change this in your local config.py, by
+# doing:
+#  import quest.config
+#  quest.config.db_user = "my_db_user"
+#  quest.config.db_password = "my_db_password"
+#  ...etc.
+db_host = 'localhost'
+db_user = 'root'
+db_password = 'CHANGE_ME'
+db_name = 'test'
