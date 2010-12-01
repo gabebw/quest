@@ -24,7 +24,7 @@ def run_sql(sql):
     try:
         cursor.execute(query)
         return cursor
-    except Exception as e
+    except Exception as e:
         print e
         # Re-raise the error
         raise e

@@ -55,7 +55,7 @@ def create_hierarchy(lst):
     global drilldown_parent2child
     lst = [elem.strip() for elem in lst]
 
-    for index, item in enumerate(lst)
+    for index, item in enumerate(lst):
         if index + 1 < len(lst):
             rollup_child2parent[item] = lst[index+1]
     # Invert rollup hierarchy for drilldown
