@@ -4,7 +4,9 @@
 # ROLLUP(Q, <another_pred>).
 
 import quest.engine
+# for RSHIFT/LSHIFT
 import shifter
+import rollup_drilldown
 
 class Query:
     def __init__(self, query_string, parent = None):
@@ -71,6 +73,12 @@ class Query:
     def rshift(self, attr):
         """RSHIFT an attribute of this query."""
         return set_child_and_return(shifter.rshift(self, attr))
+
+    def rollup(self, attr):
+        return set_child_and_return(rollup_drilldown.rollup(self.statement, attr))
+
+    def drilldown(self, attr):
+        return set_child_and_return(rollup_drilldown.drilldown(self.statement, attr))
 
     def set_child_and_return(self, new_statement):
         """Set new_query as self.child and return new_query."""

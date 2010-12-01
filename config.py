@@ -32,3 +32,35 @@ db_host = 'localhost'
 db_user = 'root'
 db_password = 'CHANGE_ME'
 db_name = 'test'
+
+# ROLLUP/DRILLDOWN hierarchies. Please use the convenience method
+# create_hierarchy [below] instead of accessing them directly.
+rollup_child2parent = {}
+drilldown_parent2child = {}
+
+def create_hierarchy(lst):
+    """
+    Given a list structure where list[N] is the parent of list[N+1]
+    (i.e. parents come before children), populates the hierarchy
+    dictionaries for rollup and drilldown. All items in lst are
+    strip()ped.
+
+    WARNING: if an attribute of the same name is later added to the
+    hierarchies, it will overwrite any previous attribute of the same
+    name, so e.g. if we have a relationship where "Mac" rolls up to
+    "PC", and later we add a relationship where "Mac" rolls up to
+    "Linux", then the "Linux" relationship will overwrite the "PC" one.
+    """
+    global rollup_child2parent
+    global drilldown_parent2child
+    lst = [elem.strip() for elem in lst]
+
+    for index, item in enumerate(lst)
+        if index + 1 < len(lst):
+            rollup_child2parent[item] = lst[index+1]
+    # Invert rollup hierarchy for drilldown
+    drilldown_parent2child = dict([(v, k) for (k, v) in rollup_child2parent])
+
+    # Since the last item in lst wasn't dealt with by rollup, manually
+    # add it to drilldown hierarchy
+    drilldown_parent2child[lst[-1]] = lst[-2]
