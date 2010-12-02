@@ -5,7 +5,6 @@ import sys
 import MySQLdb
 
 import config
-from query import query_cache
 import util
 
 try:
@@ -58,10 +57,10 @@ def show(query, number_of_rows = None):
                 fetched_rows = cursor.fetchmany(config.ROWS_TO_SHOW)
                 return fetched_rows
             else:
-                raise ValueError("number_of_rows ({}) is not an int!".format(number_of_rows))
+                raise ValueError("number_of_rows (%d) is not an int!" % number_of_rows)
     else:
         if util.is_integer(number_of_rows):
             fetched_rows = cursor.fetchmany(int(number_of_rows))
             return fetched_rows
         else:
-            raise ValueError("number_of_rows ({}) is not an int!".format(number_of_rows))
+            raise ValueError("number_of_rows (%d) is not an int!" % number_of_rows)
