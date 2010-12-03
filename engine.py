@@ -24,13 +24,13 @@ cursor = db.cursor()
 
 def run_sql(sql):
     """
-    Sends a pure SQL expression to the DB and returns the result.
-    After running this, use engine.cursor.fetchone() or
-    engine.cursor.fetchalL() to fetch results. Returns the cursor
-    object.
+    Sends a pure SQL expression to the DB and returns the DB cursor object.
+
+    After running this, use the returned cursor object to run
+    cursor.fetchone() or cursor.fetchall() to fetch results.
     """
     try:
-        cursor.execute(query)
+        cursor.execute(sql)
         return cursor
     except Exception as e:
         print e
