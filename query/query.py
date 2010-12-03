@@ -1,7 +1,4 @@
 # The basic Query class
-# TODO: maybe use a tree to track parent/child relationships, since we can have
-# 2 children of a query, say if user does ROLLUP(Q, <pred>) and
-# ROLLUP(Q, <another_pred>).
 
 import quest.engine
 # for RSHIFT/LSHIFT
