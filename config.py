@@ -34,7 +34,7 @@ db_password = 'CHANGE_ME'
 db_name = 'test'
 
 # ROLLUP/DRILLDOWN hierarchies. Please use the convenience method
-# create_hierarchy [below] instead of accessing them directly.
+# create_hierarchy (below) instead of accessing them directly.
 rollup_child2parent = {}
 drilldown_parent2child = {}
 
