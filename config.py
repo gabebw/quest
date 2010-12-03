@@ -51,16 +51,21 @@ def create_hierarchy(lst):
     "PC", and later we add a relationship where "Mac" rolls up to
     "Linux", then the "Linux" relationship will overwrite the "PC" one.
     """
+    if len(lst) < 2:
+        raise Exception("create_hierarchy: list too short (length must be >= 2)")
+
     global rollup_child2parent
     global drilldown_parent2child
     lst = [elem.strip() for elem in lst]
 
     for index, item in enumerate(lst):
-        if index + 1 < len(lst):
-            rollup_child2parent[item] = lst[index+1]
-    # Invert rollup hierarchy for drilldown
-    drilldown_parent2child = dict([(v, k) for (k, v) in rollup_child2parent])
-
-    # Since the last item in lst wasn't dealt with by rollup, manually
-    # add it to drilldown hierarchy
-    drilldown_parent2child[lst[-1]] = lst[-2]
+        if index == 0:
+            # First element, can only drill down
+            drilldown_parent2child[item] = lst[index+1]
+        elif index == len(lst)-1:
+            # Last element, can only roll up
+            rollup_child2parent[item] = lst[index-1]
+        else:
+            # Neither first nor last element, add to both hierarchies
+            rollup_child2parent[item] = lst[index-1]
+            drilldown_parent2child[item] = lst[index+1]
