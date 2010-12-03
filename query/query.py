@@ -20,15 +20,53 @@ class Query:
         # self.child is explicitly set by operators
         self.child = None
 
-    def narrow(self, predicate):
+    def narrow(self, clause):
         """AND's this query with the given predicate."""
-        new_statement = lexer.lex(" ".join(str(self.statement), "AND", predicate))
-        return set_child_and_return(new_statement)
+        query = self.statement.split()
+        i=0
 
-    def relax(self, predicate):
+        hasWhereOrHaving=False
+        hasFrom=False
+
+        while i<len(query):
+            token = query[i]
+            lower_token = token.lower()
+            if lower_token == "from":
+                hasFrom=True
+
+            elif lower_token in ["where", "having"] and hasFrom:
+                hasWhereOrHaving=True
+                query[i] = " ".join([token, clause, "and"])
+            i+=1
+
+        if hasFrom and not hasWhereOrHaving:
+            query.append("where "+clause)
+
+        set_child_and_return(' '.join(query))
+
+    def relax(self, clause):
         """OR's this query with the given predicate."""
-        new_statement = lexer.lex(" ".join(str(self.statement), "OR", predicate))
-        return set_child_and_return(new_statement)
+        query = self.statement.split()
+        i=0
+
+        hasWhereOrHaving=False
+        hasFrom=False
+
+        while i<len(query):
+            token = query[i]
+            lower_token = token.lower()
+            if lower_token == "from":
+                hasFrom=True
+
+            elif lower_token in ["where", "having"] and hasFrom:
+                hasWhereOrHaving=True
+                query[i] = " ".join([token, clause, "or"])
+            i+=1
+
+        if hasFrom and not hasWhereOrHaving:
+            query.append("where "+clause)
+
+        set_child_and_return(' '.join(query))
 
     def show(self, number_of_rows = None):
         """
