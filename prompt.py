@@ -48,7 +48,6 @@ class Prompt:
         """Calls init_history()."""
         self.banner = banner
         self.init_history(histfile)
-        self.engine = quest.engine
 
     def interact(self, prompt=">>> "):
         """Starts up the REPL, prints banner message and passes user input to handle_answer."""
@@ -108,7 +107,7 @@ class Prompt:
                 # Answer is pure SQL
                 print "** SQL DETECTED **"
                 try:
-                    cursor = self.engine.run_sql(answer)
+                    cursor = quest.engine.run_sql(answer)
                 except Exception as e:
                     print e
                     return False
