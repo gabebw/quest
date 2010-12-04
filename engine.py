@@ -25,6 +25,7 @@ cursor = db.cursor()
 def run_sql(sql):
     """
     Sends a pure SQL expression to the DB and returns the DB cursor object.
+    May raise an error, which it intentionally does not handle.
 
     After running this, use the returned cursor object to run
     cursor.fetchone() or cursor.fetchall() to fetch results.
@@ -33,7 +34,6 @@ def run_sql(sql):
         cursor.execute(sql)
         return cursor
     except Exception as e:
-        print e
         # Re-raise the error
         raise e
 

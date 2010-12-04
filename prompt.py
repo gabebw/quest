@@ -106,10 +106,22 @@ class Prompt:
             if sql_match:
                 # Answer is pure SQL
                 print "** SQL DETECTED **"
-                cursor = self.engine.run_sql(answer)
-                # TODO: warn if >20 rows?
-                for row in cursor.fetchall():
-                    print row
+                try:
+                    cursor = self.engine.run_sql(answer)
+                except Exception as e:
+                    print e
+                    return False
+
+                # rowcount is -1 or None if no query was run or number
+                # of rows can't be determined
+                if cursor.rowcount and cursor.rowcount > 0:
+                    # TODO: warn if >20 rows?
+                    for row in cursor.fetchall():
+                        print row
+                else:
+                    # Something went wrong, but didn't raise an error.
+                    # Very peculiar, and probably shouldn't happen.
+                    print "!!! Something went wrong: %s" % cursor.info
             elif initialize_match:
                 print "** INITIALIZE OPERATOR DETECTED **"
                 # Strip quotes, in case people do something like
