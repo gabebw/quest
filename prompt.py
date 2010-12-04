@@ -99,7 +99,10 @@ class Prompt:
             if sql_match:
                 # Answer is pure SQL
                 print "** SQL DETECTED **"
-                return self.engine.run_sql(answer)
+                cursor = self.engine.run_sql(answer)
+                # TODO: warn if >20 rows?
+                for row in cursor.fetchall():
+                    print row
             elif initialize_match:
                 print "** INITIALIZE OPERATOR DETECTED **"
                 query_variable = initialize_match.group(1)
