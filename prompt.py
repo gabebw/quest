@@ -103,6 +103,7 @@ class Prompt:
             sql_match = re.match(self.rSql, answer)
             initialize_match = re.match(self.rInitialize, answer)
             quest_command_match = re.match(self.rQuestCommand, answer)
+
             if sql_match:
                 # Answer is pure SQL
                 print "** SQL DETECTED **"
@@ -149,7 +150,7 @@ class Prompt:
                     # Try to look up the query in the query cache.
                     query_key = user_query_variable
                     try:
-                        query = query_cache.get(user_query_variable)
+                        query = query_cache.get(query_key)
                     except KeyError:
                         # User is trying to use a non-initialized
                         # variable
@@ -191,7 +192,7 @@ class Prompt:
                             print "Query put in cache as", key
                             return new_query
             else:
-                print "ERR: {} is not valid SQL or a Quest operator. Please try again.".format(answer)
+                print "ERR: %s is not valid SQL or a Quest operator. Please try again." % answer
             # If we haven't returned by now, it's an error. Return False.
             return False
 
