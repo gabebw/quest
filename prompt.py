@@ -37,6 +37,11 @@ class Prompt:
     rQuestCommand = re.compile(rQueryVariable + rQuestOperator + rArguments,
             re.IGNORECASE)
 
+
+    # If the user enters commands like "q.rollup(X)", we use this to
+    # remove the quotes
+    rBeginOrEndQuotes = re.compile(r"^['\"]|['\"]$")
+
     def __init__(self,
             banner='Welcome to Quest! For help, type "help" and hit RETURN.',
             histfile=os.path.expanduser("~/.quest_history")):
@@ -63,6 +68,8 @@ class Prompt:
     def get_input(self, prompt):
         """Prompts for user input using given prompt string and returns input."""
         text = raw_input(prompt)
+        # Change '"I am some text"' to 'I am some text'
+        text = rBeginOrEndQuotes.sub('', text)
         return text
 
     def help(self):
@@ -105,8 +112,10 @@ class Prompt:
                     print row
             elif initialize_match:
                 print "** INITIALIZE OPERATOR DETECTED **"
-                query_variable = initialize_match.group(1)
-                sql = initialize_match.group(2)
+                # Strip quotes, in case people do something like
+                # `INITIALIZE("Q", "SELECT * FROM table")`
+                query_variable = rBeginOrEndQuotes.sub('', initialize_match.group(1))
+                sql = rBeginOrEndQuotes.sub('', initialize_match.group(2))
                 query_cache.put(query_variable, sql)
                 print "Initialized", query_variable, "to", sql
 
