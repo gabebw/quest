@@ -119,10 +119,14 @@ class Prompt:
 
                 # Initialize to None in case we fail to set a valid +query+ below
                 query = None
+                # a key in query_cache.cache that is associated with a
+                # Query instance
+                query_key = None
 
                 if user_query_variable is not None:
                     # User is calling an operator on a specific query.
                     # Try to look up the query in the query cache.
+                    query_key = user_query_variable
                     try:
                         query = query_cache.get(user_query_variable)
                     except KeyError:
@@ -130,15 +134,21 @@ class Prompt:
                         pass
                 else:
                     # No query variable specified, so use most recent query
-                    query = query_cache.most_recent_query()
+                    query_key, query = query_cache.most_recent_key_and_query
 
                 if query is None:
-                    # Either we failed to get user_query_variable from query cache, or
-                    # this is the first command (so
-                    # most_recent_key_and_query is (None, None)).
-                    # In any case, fail.
-                    print "!!!", user_query_variable, # note ending comma
-                    print "is not a valid query variable. Please try again."
+                    # Failed to get a query for some reason. Fail
+                    # informatively.
+                    if user_query_variable is None and query_key is None:
+                        # User hasn't called INITIALIZE yet - they
+                        # provided no query variable, and we couldn't
+                        # get one from the cache
+                        print "!!! Please run INITIALIZE(<variable>, <SQL query>)"
+                    else:
+                        # User is trying to use a non-initialized
+                        # variable
+                        print "!!!", user_query_variable, # note ending comma
+                        print "is not a valid query variable. Please try again."
                 else:
                     # We have a query.
                     if arguments is None:
@@ -159,7 +169,8 @@ class Prompt:
                             print new_query
                             # Give the new query a unique name and put it in the
                             # query cache.
-                            query_cache.put(None, new_query)
+                            key, query = query_cache.put(None, new_query)
+                            print "Query put in cache as", key
                             return new_query
             else:
                 print "ERR: {} is not valid SQL or a Quest operator. Please try again.".format(answer)
