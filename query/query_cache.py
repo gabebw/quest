@@ -20,8 +20,9 @@ cache = {}
 # 0.
 counter_dict = {}
 uppercase_list = list(uppercase)
-# most_recent_query is set whenever put() is called.
-most_recent_query = None
+# most_recent_key_query is set whenever put() is called. It is a tuple
+# of (key, query) like ("A", <query object>)
+most_recent_key_and_query = (None, None)
 
 def increment_counter_for(variable):
     """Increment the counter for a given variable name. Should be called each
@@ -72,8 +73,8 @@ def put(key, query):
         # variable.
         query = Query(query)
     cache[key] = query
-    most_recent_query = query
-    return (key, query)
+    most_recent_key_and_query = (key, query)
+    return most_recent_key_and_query
 
 def get(key):
     """Returns the query associated with the given key. Behaves exactly like a
