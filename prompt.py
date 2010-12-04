@@ -20,6 +20,7 @@ class Prompt:
 
     # Quest-specific operators
     rQuestOperator =r"(rollup|drilldown|store|relax|narrow|relate)"
+    rInitialize = re.compile(r"initialize\((.+), (.+)\)", re.IGNORECASE)
     # A query variable has to be word characters, so "my_query_variable" works
     # but "so awesome!!" doesn't. The query variable is optional; if the user
     # just types "rollup(<predicate>)", we use the most recent query.
@@ -93,11 +94,19 @@ class Prompt:
             print "Please enter something other than whitespace."
         else:
             sql_match = re.match(self.rSql, answer)
+            initialize_match = re.match(self.rInitialize, answer)
             quest_command_match = re.match(self.rQuestCommand, answer)
             if sql_match:
                 # Answer is pure SQL
                 print "** SQL DETECTED **"
                 return self.engine.run_sql(answer)
+            elif initialize_match:
+                print "** INITIALIZE OPERATOR DETECTED **"
+                query_variable = initialize_match.group(1)
+                sql = initialize_match.group(2)
+                query_cache.put(query_variable, sql)
+                print "Initialized", query_variable, "to", sql
+
             elif quest_command_match:
                 # Answer is a Quest operator, delegate
                 print "** QUEST OPERATOR DETECTED **"
