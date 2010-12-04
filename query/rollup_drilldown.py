@@ -28,7 +28,7 @@ def rollup(query, child_attribute):
     parent_attribute = rollup_child2parent[child_attribute]
     return replace_and_create_new_query(query, child_attribute, parent_attribute)
 
-def replace_and_create_new_query(query, target_attribute, new_attribute)
+def replace_and_create_new_query(query, target_attribute, new_attribute):
     """
     Replace target_attribute with new_attribute in query and return new
     query string.
