@@ -4,6 +4,7 @@
 # This is a singleton class implemented using a module (rather than a class).
 
 from string import uppercase
+from quest.query.query import Query
 
 class TooManyQueryVariables(Exception):
     def __init__(self, value):
@@ -58,11 +59,18 @@ def next_variable_name(letters = uppercase_list):
 def put(key, query):
     """Put a (key, query) pair in the cache. If key is None, autogenerates a
     variable name using next_variable_name. Returns a (key, query) tuple.
+
+    Autoconverts query to a Query instance, if it isn't already.
     """
     global most_recent_key_and_query
     global cache
     if key is None:
         key = next_variable_name()
+    if not isinstance(query, Query):
+        # Set the query variable (which is a string) to an instance of
+        # the Query class initialized with the value of the query
+        # variable.
+        query = Query(query)
     cache[key] = query
     most_recent_query = query
     return (key, query)
