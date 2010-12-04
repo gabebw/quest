@@ -98,7 +98,7 @@ class Prompt:
                 # Answer is pure SQL
                 print "** SQL DETECTED **"
                 return self.engine.run_sql(answer)
-            elif quest_commmand_match:
+            elif quest_command_match:
                 # Answer is a Quest operator, delegate
                 print "** QUEST OPERATOR DETECTED **"
                 query_variable = quest_command_match.group(1)
@@ -129,13 +129,13 @@ class Prompt:
                 else:
                     # We have a query.
                     if arguments is None:
-                        print "You must provide arguments to", operator
+                        print "You must provide arguments to", quest_operator
                         print "Please use this syntax:",
-                        "[<query variable>.]{}(arg1, arg2, ...)".format(operator)
+                        "[<query variable>.]%s(arg1, arg2, ...)" % quest_operator
                     else:
                         try:
                             # query_function is e.g. query.narrow
-                            query_function = getattr(query, operator.lower())
+                            query_function = getattr(query, quest_operator.lower())
                         except TypeError as te:
                             print te
                         else:

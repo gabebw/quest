@@ -26,6 +26,7 @@ def increment_counter_for(variable):
     """Increment the counter for a given variable name. Should be called each
     time a new generation of a query is created (Q1.rollup(pred) -> Q2).
     """
+    global counter_dict
     counter_dict[variable] += 1
 
 def next_variable_name(letters = uppercase_list):
@@ -34,6 +35,7 @@ def next_variable_name(letters = uppercase_list):
     been used yet. The `letters` argument allows for recursive calling with
     different sets of letters.
     """
+    global counter_dict
     if len(letters[0]) == 4:
         # We've reached "AAAA", stop.
         raise TooManyQueryVariables("Too many query variables!")
@@ -57,6 +59,8 @@ def put(key, query):
     """Put a (key, query) pair in the cache. If key is None, autogenerates a
     variable name using next_variable_name. Returns a (key, query) tuple.
     """
+    global most_recent_key_and_query
+    global cache
     if key is None:
         key = next_variable_name()
     cache[key] = query
@@ -74,6 +78,7 @@ def delete(key):
     """Delete the key from the cache. Raises a KeyError (exactly like a dict)
     if the key is not in the cache. Returns the query associated with the key.
     """
+    global cache
     query = get(key)
     del cache[key]
     return query

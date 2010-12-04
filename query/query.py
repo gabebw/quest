@@ -12,7 +12,7 @@ class Query:
         parent is the "parent" Query class; as each Query evolves, it
         notes its parent and child. The "top" query has no parent.
         """
-        self.statement = statement
+        self.statement = query_string.strip()
         self.parent = parent
         # self.child is explicitly set by operators
         self.child = None

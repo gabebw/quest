@@ -1,8 +1,8 @@
 import sqlparse
-from quest import QuestOperationNotAllowedException
+from quest.exception import QuestOperationNotAllowedException
 
 # User-provided hierarchies.
-from config import drilldown_parent2child, rollup_child2parent
+from quest.config import drilldown_parent2child, rollup_child2parent
 
 def drilldown(query, parent_attribute):
     """
