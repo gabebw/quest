@@ -113,18 +113,18 @@ class Prompt:
             elif quest_command_match:
                 # Answer is a Quest operator, delegate
                 print "** QUEST OPERATOR DETECTED **"
-                query_variable = quest_command_match.group(1)
+                user_query_variable = quest_command_match.group(1)
                 quest_operator = quest_command_match.group(2)
                 arguments = quest_command_match.group(3)
 
                 # Initialize to None in case we fail to set a valid +query+ below
                 query = None
 
-                if query_variable is not None:
+                if user_query_variable is not None:
                     # User is calling an operator on a specific query.
                     # Try to look up the query in the query cache.
                     try:
-                        query = query_cache.get(query_variable)
+                        query = query_cache.get(user_query_variable)
                     except KeyError:
                         # Pass because we print an error message later.
                         pass
@@ -133,10 +133,11 @@ class Prompt:
                     query = query_cache.most_recent_query()
 
                 if query is None:
-                    # Either we failed to get query_variable from query cache, or
-                    # this is the first command (so most_recent_query is None).
+                    # Either we failed to get user_query_variable from query cache, or
+                    # this is the first command (so
+                    # most_recent_key_and_query is (None, None)).
                     # In any case, fail.
-                    print "!!!", query_variable, # note ending comma
+                    print "!!!", user_query_variable, # note ending comma
                     print "is not a valid query variable. Please try again."
                 else:
                     # We have a query.
