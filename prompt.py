@@ -130,25 +130,22 @@ class Prompt:
                     try:
                         query = query_cache.get(user_query_variable)
                     except KeyError:
-                        # Pass because we print an error message later.
-                        pass
+                        # User is trying to use a non-initialized
+                        # variable
+                        print "!!!", user_query_variable, # note ending comma
+                        print "is not a valid query variable. Please try again."
+                        return False
                 else:
                     # No query variable specified, so use most recent query
                     query_key, query = query_cache.most_recent_key_and_query
 
                 if query is None:
-                    # Failed to get a query for some reason. Fail
-                    # informatively.
                     if user_query_variable is None and query_key is None:
                         # User hasn't called INITIALIZE yet - they
-                        # provided no query variable, and we couldn't
-                        # get one from the cache
+                        # didn't provide a query variable, and we
+                        # couldn't get one from the cache
                         print "!!! Please run INITIALIZE(<variable>, <SQL query>)"
-                    else:
-                        # User is trying to use a non-initialized
-                        # variable
-                        print "!!!", user_query_variable, # note ending comma
-                        print "is not a valid query variable. Please try again."
+                    return False
                 else:
                     # We have a query.
                     if arguments is None:
