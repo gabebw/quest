@@ -95,6 +95,8 @@ def execute_query(db, query):
     """
     global result_rows
     global cursor
+    global meta_dict
+    global column_names
 
     cursor = db.cursor()
     try:
@@ -108,7 +110,6 @@ def execute_query(db, query):
         # No results
         return None
     else:
-        global column_names
         first_row = result_rows[0]
         # cursor.description[i] is like
         # ('playerID', None, None, None, None, None, None)
@@ -127,8 +128,6 @@ def column_index(column_name):
     Returns index of column with given name in result_rows, or None
     if no column in result_rows has the given name.
     """
-
-    global column_names
     try:
         return column_names.index(column_name)
     except ValueError as ve:
