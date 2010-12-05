@@ -61,6 +61,8 @@ def symbol_to_placeholder(query):
             new_query.append(symbol2placeholder[token])
         elif findOperator(token):
             if findOperator(chunks[index+1]):
+                # Change "3 >=" to "3>=" so that split() doesn't
+                # separate them
                 new_query.append('%s%s' % (token, chunks[index+1]))
             else:
                 new_query.append(token)
@@ -246,6 +248,8 @@ def shift(attr_name, attr_value, shift_type):
             # the value of its attr_index'th column, which is the column
             # corresponding to the attr we're shifting.
             rows_sorted_by_attr_value = sorted(result_rows, key = itemgetter(attr_index))
+            # data_index is the index in rows_sorted_by_attr_value of
+            # the row containing attr_value for the given column
             data_index = 0
             for index, row in enumerate(rows_sorted_by_attr_value):
                 if bare_attr_value == row[attr_index]:
@@ -321,6 +325,7 @@ def parseStringAndShift(query, att, shift_type):
             # "att<" becomes "att", "<", i.e. separate tokens
             split_query[i] = att
             split_query.insert(i+1, operator)
+            # Let other pieces of code handle the rewritten query
             next
 
         elif att == token and findOperator(split_query[i+1]) and ("'" in split_query[i+2] or split_query[i+2].isdigit()):
