@@ -87,6 +87,7 @@ def combineTimestampTokens(array):
 def execute_query(db, query):
     """
     Tries to run the given query using the given database connection.
+
     db is a DB connection (of any type), and the query is the (string)
     representation of the query to execute. Returns None if no rows are
     in the result set, True otherwise.
@@ -131,8 +132,7 @@ def column_index(column_name):
     try:
         return column_names.index(column_name)
     except ValueError as ve:
-        #print 'No attribute of this name is present in the result set of the',
-        #print 'query you provided'
+        # No column with this name exists
         return None
 
 def shift(attr_name, attr_value, shift_type):
@@ -220,6 +220,7 @@ def shift(attr_name, attr_value, shift_type):
             # FIXME: no attribute found, error
             pass
 
+        # attr is the attr_index'th column
         attr_index = column_index(bare_attr_value)
         if attr_index is None:
             # Not a valid column name, don't shift.
