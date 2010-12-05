@@ -78,7 +78,8 @@ def placeholder_to_symbol(query):
     return new_query.replace(' . ', '.')
 
 def findOperator(string):
-    """If _string_ contains an operator from all_ops, returns that operator.
+    """
+    If _string_ contains an operator from all_ops, returns that operator.
     Otherwise, returns False.
     """
     for op in all_ops:
@@ -87,7 +88,8 @@ def findOperator(string):
     return False
 
 def combineTimestampTokens(array):
-    """Check to see whether there are consecutive tokens consisting of a
+    """
+    Check to see whether there are consecutive tokens consisting of a
     timestamp of the form "YYYY-MM-DD", "HH:MM:SS" and if there are, then
     the two are regenerated to form one single token, with date and time
     together.
@@ -106,7 +108,8 @@ def combineTimestampTokens(array):
     return array
 
 def execute_query(db, query):
-    """Tries to run the given query using the given database connection.
+    """
+    Tries to run the given query using the given database connection.
     db is a DB connection (of any type), and the query is the (string)
     representation of the query to execute. Returns None if no rows are
     in the result set, True otherwise.
@@ -142,7 +145,8 @@ def execute_query(db, query):
         return True
 
 def column_index(column_name):
-    """Returns index of column with given name in result_rows, or None
+    """
+    Returns index of column with given name in result_rows, or None
     if no column in result_rows has the given name.
     """
 
@@ -155,9 +159,12 @@ def column_index(column_name):
         return None
 
 def shift(attr_name, attr_value, shift_type):
-    """Shift attribute with given name and value according to
-    shift_type. Raises a TypeError if shift_type does not equal either
-    of the magic constants LSHIFT or RSHIFT.
+    """
+    Shift attribute with given name and value according to
+    shift_type.
+
+    Raises a TypeError if shift_type does not equal either of the magic
+    constants LSHIFT or RSHIFT.
     """
     if shift_type not in [LSHIFT, RSHIFT]:
         raise TypeError("Incorrect shift_type (%s), must provide LSHIFT or RSHIFT." % shift_type)
@@ -273,7 +280,8 @@ def shift(attr_name, attr_value, shift_type):
     return attr_value
 
 def parseStringAndShift(query, att, shift_type):
-    """Parses the given query and shifts its <att> attribute according
+    """
+    Parses the given query and shifts its <att> attribute according
     to shift_type. shift_type is either LSHIFT or RSHIFT.
     """
 
