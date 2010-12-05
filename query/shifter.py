@@ -23,6 +23,7 @@ time_regexp = re.compile(r"\d{2}:\d{2}:\d{2}")
 rOperator = re.compile(r'(%s)' % '|'.join(all_ops))
 # Used to split a SQL string into meaningful chunks
 rChunker = re.compile(r'(%s|\.|\s)' % '|'.join(all_ops))
+rWhitespace = re.compile(r"\s+")
 
 # Maps a column name to its type, e.g. movie_id => int
 meta_dict = {}
@@ -36,48 +37,6 @@ column_names = None
 
 # Result from executing query in connect(query)
 result_rows = None
-
-# Map some SQL symbols to placeholders. The placeholders are used as
-# dummy tokens for easier string mangling.
-symbol2placeholder = {
-        '(': '$',
-        ')': '#',
-        ',': '^',
-        '.': '.'
-        }
-
-# placeholder2symbol is symbol2placeholder, with the values and
-# keys switched
-placeholder2symbol = dict([(v, k) for (k, v) in symbol2placeholder.iteritems()])
-
-def symbol_to_placeholder(query):
-    """Convert from SQL operators to placeholder symbols."""
-    new_query = []
-    chunks = rChunker.split(query)
-    # Remove whitespace tokens and empty strings
-    chunks = [str(x) for x in chunks if not (x.isspace() or x == '')]
-    for index, token in enumerate(chunks):
-        if token in symbol2placeholder:
-            new_query.append(symbol2placeholder[token])
-        elif findOperator(token):
-            if findOperator(chunks[index+1]):
-                # Change "3 >=" to "3>=" so that split() doesn't
-                # separate them
-                new_query.append('%s%s' % (token, chunks[index+1]))
-            else:
-                new_query.append(token)
-        else:
-            new_query.append(token)
-
-    return ' '.join(new_query)
-
-def placeholder_to_symbol(query):
-    """Convert from placeholders back to real SQL operators."""
-    # Get the token from placeholder2symbol, or if it's not there
-    # just return the plain token.
-    new_query = ''.join([placeholder2symbol.get(token, token) for token in query])
-
-    return new_query.replace(' . ', '.')
 
 def findOperator(string):
     """
@@ -289,10 +248,9 @@ def parseStringAndShift(query, att, shift_type):
     to shift_type. shift_type is either LSHIFT or RSHIFT.
     """
 
-    # Convert some of the SQL symbols in the query to placeholders.
-    query_with_placeholders = symbol_to_placeholder(query)
-    split_query_with_placeholders = query_with_placeholders.split()
-    split_query = combineTimestampTokens(split_query_with_placeholders)
+    # Remove repeated whitespace
+    sanitized_query = rWhitespace.sub(' ', query)
+    split_query = combineTimestampTokens(sanitized_query.split())
 
     # Was the previous clause WHERE or HAVING?
     found_where_or_having = False
@@ -390,11 +348,10 @@ def parseStringAndShift(query, att, shift_type):
             # "att IN (3,4,5)"
             did_shift = True
 
-            # Since "3,4,5" is translated to "$3,4,5#", we set i to
-            # the first index after the "$" and iterate until we
-            # hit the ending "#"
+            # For "(3,4,5)", set i to the first index after the "(" and
+            # iterate until we hit the ending ")"
             i += 3
-            while split_query[i] != '#':
+            while split_query[i] != ')':
                 split_query[i] = shift(att, split_query[i], shift_type)
                 i += 2
 
@@ -405,7 +362,7 @@ def parseStringAndShift(query, att, shift_type):
             did_shift = True
 
             i += 4
-            while split_query[i] != '#':
+            while split_query[i] != ')':
                 split_query[i] = shift(att, split_query[j], shift_type)
                 i += 2
 
@@ -425,8 +382,8 @@ def parseStringAndShift(query, att, shift_type):
             split_query[i+3] = shift(att, comparison, shift_type)
             i += 3
 
-        elif token == att and split_query[i+1] == '#' and findOperator(split_query[i+2]):
-            # "att # <operator> operand"
+        elif token == att and split_query[i+1] == ')' and findOperator(split_query[i+2]):
+            # "att ) <operator> operand"
             did_shift = True
 
             operand = split_query[i+3]
@@ -438,7 +395,7 @@ def parseStringAndShift(query, att, shift_type):
         print "Didn't shift: attribute not found in supplied query."
         return query
     else:
-        final_query = placeholder_to_symbol(' '.join(split_query))
+        final_query = ' '.join(split_query)
         return final_query
 
 def rshift(query, attribute):
