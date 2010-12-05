@@ -6,7 +6,7 @@ try:
     import MySQLdb
 except ImportError as ie:
     import sys
-    sys.exit("!!! Could not import MySQLdb!")
+    sys.exit("!!! Could not import MySQLdb. Install mysql-python.")
 
 # Magic constants.
 RSHIFT = 0
