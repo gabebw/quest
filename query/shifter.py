@@ -8,6 +8,13 @@ except ImportError as ie:
     import sys
     sys.exit("!!! Could not import MySQLdb. Install mysql-python.")
 
+# Raised when we couldn't shift on the supplied attribute
+class DidNotShiftException(Exception):
+    def __init__(self, value):
+        self.parameter = value
+    def __str__(self):
+        return repr(self.parameter)
+
 # Magic constants.
 RSHIFT = 0
 LSHIFT = 1
@@ -392,8 +399,8 @@ def parseStringAndShift(query, att, shift_type):
         i += 1
 
     if not did_shift:
-        print "Didn't shift: attribute not found in supplied query."
-        return query
+        err_msg = "Didn't shift: attribute %s not found in supplied query." % att
+        raise DidNotShiftException(err_msg)
     else:
         final_query = ' '.join(split_query)
         return final_query
