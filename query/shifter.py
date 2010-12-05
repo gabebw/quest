@@ -3,10 +3,10 @@ import datetime
 from operator import itemgetter
 
 try:
-    import sqlite3
+    import MySQLdb
 except ImportError as ie:
     import sys
-    sys.exit("!!! Could not import sqlite3!")
+    sys.exit("!!! Could not import MySQLdb!")
 
 # Magic constants.
 RSHIFT = 0
@@ -436,36 +436,21 @@ def lshift(query, attribute):
     """Convenience method."""
     return parseStringAndShift(str(query), attribute, LSHIFT)
 
-def test_mysql(attribute = 'movie_id', shift_type = LSHIFT):
+def test_mysql(attribute = 'throws', shift_type = LSHIFT):
     """Test on MySQL database."""
-    try:
-        import MySQLdb
-    except ImportError as ie:
-        import sys
-        sys.exit("!!! Could not import MySQLdb!")
 
-    mysql_db = MySQLdb.connect("localhost", "root", "pass1", "assign3")
-    mysql_query = 'select * from movie where movie_id between 2 and 3'
-
-    print shift('title', 'Red', 1)
-    parseStringAndShift(mysql_query, attribute, shift_type)
-
-def test_sqlite(attribute, shift_type):
-    """Test on Doug's SQLite database."""
-
-    sqlite3_db = sqlite3.connect("baseball.db")
-    #sqlite3_query = """select * from playerStats where playerStats.nameFirst like 'David'"""
-    sqlite3_query = "SELECT * FROM playerStats WHERE playerStats.age >= 3"
-    try:
-        result = execute_query(sqlite3_db, sqlite3_query)
-    except sqlite3.OperationalError as oe:
-        print "Check query syntax: %s" % sqlite3_query
+    mysql_db = MySQLdb.connect(host = "localhost", user = "root", passwd = "bergstrom", db = "baseball")
+    mysql_query = 'select throws from playerStats'
+    mysql_query = 'select * from playerStats where %s between 0 and 8000' % attribute
+    print mysql_query
+    result = execute_query(mysql_db, mysql_query)
+    #print result_rows
+    if result is None:
+        print "No results returned, not shifting."
+        return None
     else:
-        if result is None:
-            print "No results returned, not shifting."
-            return None
-        else:
-            print parseStringAndShift(sqlite3_query, attribute, shift_type)
+        print meta_dict
+        print parseStringAndShift(mysql_query, attribute, shift_type)
 
 if __name__ == "__main__":
-    test_sqlite('age', RSHIFT)
+    test_mysql()
