@@ -26,11 +26,20 @@ date_regexp = re.compile(r"\d{4}-\d{2}-\d{2}")
 # Matches a time like HH:MM:SS
 time_regexp = re.compile(r"\d{2}:\d{2}:\d{2}")
 
-# Regexp to match SQL equality operators
+# Regexp to match a SQL equality operator
 rOperator = re.compile(r'(%s)' % '|'.join(all_ops))
 # Used to split a SQL string into meaningful chunks
 rChunker = re.compile(r'(%s|\.|\s)' % '|'.join(all_ops))
 rWhitespace = re.compile(r"\s+")
+# Table name and quotes are both optional, so
+# this matches any of:
+#   att
+#   "att"
+#   tablename."att"
+#   "tablename".att
+#   "tablename"."att"
+# match.groups(1) would be "att" (no quotes)
+rBareAttribute = re.compile(r"(?:\w+\.)?[\"']?(\w+)[\"']?")
 
 # Maps a column name to its type, e.g. movie_id => int
 meta_dict = {}
@@ -200,10 +209,16 @@ def shift(attr_name, attr_value, shift_type):
 
     elif attr_type in (str, unicode):
         # attr is a string of some sort.
-
-        # The attr without the enclosing quotes or table references
-        # So "table.'attribute'" -> "attribute"
-        bare_attr_value = attr_value.split("'")[1]
+        match = rBareAttribute.match(attr_value)
+        # Set outside the if so it has wider scope
+        # bare_attr_value is the attr without enclosing quotes or table
+        # references
+        bare_attr_value = None
+        if match:
+            bare_attr_value = match.groups(1)
+        else:
+            # FIXME: no attribute found, error
+            pass
 
         attr_index = column_index(bare_attr_value)
         if attr_index is None:
