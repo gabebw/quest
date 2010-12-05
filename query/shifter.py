@@ -90,7 +90,8 @@ def execute_query(db, query):
     db is a DB connection (of any type), and the query is the (string)
     representation of the query to execute. Returns None if no rows are
     in the result set, True otherwise.
-    May raise a sqlite3.OperationalError error.
+    If an Exception is raised when running cursor.execute, this function
+    will explicitly not catch it.
     """
     global result_rows
     global cursor
@@ -99,9 +100,9 @@ def execute_query(db, query):
     try:
         cursor.execute(query)
         result_rows = cursor.fetchall()
-    except sqlite3.OperationalError as oe:
+    except Exception as e:
         # Just raise it
-        raise oe
+        raise e
 
     if len(result_rows) == 0:
         # No results
