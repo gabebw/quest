@@ -38,15 +38,16 @@ def replace_and_create_new_query(query, target_attribute, new_attribute):
     for statement in parsed:
         replace_text = False
         for token in statement.tokens:
-            if str(token).lower() in ['select', 'by']:
-                replace_text = True
-                next
 
             if replace_text and not token.is_whitespace():
                 # Replace the first non-whitespace token after "SELECT"
                 # or "BY"
                 token = replace_attribute(str(token), target_attribute, new_attribute)
                 replace_text = False
+
+            if str(token).lower() in ['select', 'by']:
+                replace_text = True
+                next
 
             new_query.append(str(token).strip())
     return " ".join([token for token in new_query if token != ''])
