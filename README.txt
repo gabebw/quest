@@ -17,6 +17,7 @@ Intro
 Quest implements a simple DSL (domain-specific language) on top of MySQL.
 It can connect to any MySQL database. It can be used at the command line,
 which provides a simple REPL, or through an HTML GUI.
+For a guide, type "help" at the prompt or in the GUI.
 
 Configuration
 -------------
