@@ -1,11 +1,15 @@
 # The basic Query class
 
+import re
+
 import quest.engine
 # for RSHIFT/LSHIFT
 import shifter
 import rollup_drilldown
 
 class Query:
+    rBeginsWithSelect = re.compile("^begin", re.I)
+
     def __init__(self, query_string, parent = None):
         """
         query_string is the string representation of the query.
@@ -80,7 +84,8 @@ class Query:
         successfully stored, raises the error it encountered with some
         extra Quest-specific info prepended to the error message.
         """
-        if self.statement.tokens[0].ttype == Keyword.DML:
+        match = self.statement.match(self.rBeginsWithSelect)
+        if match:
             # This is a SELECT statement, proceed
             # CREATE TABLE new_table_name SELECT ...
             query = "CREATE TABLE %s %s" % (table_name, self.statement)
