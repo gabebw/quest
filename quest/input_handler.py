@@ -13,7 +13,7 @@ QUIT = "quit"
 rSql = re.compile(r"^(select|update|insert) .+", re.IGNORECASE)
 
 # Quest-specific operators
-rQuestOperator = r"(rollup|drilldown|store|relax|narrow|relate|show)"
+rQuestOperator = r"(rollup|drilldown|store|relax|narrow|relate|show|rshift|lshift)"
 rInitialize = re.compile(r"initialize\(\s*(.+)\s*,\s*(.+)\s*\)", re.IGNORECASE)
 # A query variable has to be word characters, so "my_query_variable" works
 # but "so awesome!!" doesn't. The query variable is optional; if the user
