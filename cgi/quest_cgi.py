@@ -61,7 +61,7 @@ def run():
                         <form id="theForm">
                         <br/>
                         <p align="center">
-                            Enter your Query <input style="WIDTH: 800px; HEIGHT: 45px" size=48 id="Search" >
+                            Enter your Query <input style="WIDTH: 800px; HEIGHT: 45px" size=48 id="Search" />
                             <input id="submit" type="submit" value="Submit" />
                         </p>
                         </form>
