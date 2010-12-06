@@ -22,7 +22,7 @@ RSHIFT = 0
 LSHIFT = 1
 
 # All of the ops that we match
-all_ops = ('<>', '!=', '<=', '>=', '<', '>', '==')
+all_ops = ('<>', '!=', '<=', '>=', '<', '>', '==', '=')
 # Matches a date like YYYY-MM-DD
 date_regexp = re.compile(r"\d{4}-\d{2}-\d{2}")
 # Matches a time like HH:MM:SS
@@ -273,9 +273,14 @@ def parseStringAndShift(query, att, shift_type):
     to shift_type. shift_type is either LSHIFT or RSHIFT.
     """
 
+    att = att.strip()
+
     # Remove repeated whitespace
     sanitized_query = rWhitespace.sub(' ', query)
-    split_query = combineTimestampTokens(sanitized_query.split())
+    sanitized_query = re.sub(r';$', '', sanitized_query)
+    query_array_with_combined_timestamps = combineTimestampTokens(rChunker.split(sanitized_query))
+    # Remove extra whitespace tokens from query array
+    split_query = ' '.join(query_array_with_combined_timestamps).split()
 
     # Was the previous clause WHERE or HAVING?
     found_where_or_having = False
