@@ -43,7 +43,8 @@ class Prompt:
                 # Catch everything
                 print e
             else:
-                print handle_value
+                if handle_value != input_handler.QUIT:
+                    print handle_value
 
         print "Bye!"
 
