@@ -39,7 +39,7 @@ def help():
     """Print the help."""
     return """
     Quest: QUery Engine for Selecting Tables
-    SQL: You can type in any valid SQL expression to see its result.
+    \tSQL: You can type in any valid SQL expression to see its result.
     You can also use some Quest-specific operators. Note that the
     "Q." is optional; if you don't specify a query to perform a
     Quest operation on, the most recent query will be used. Also note
@@ -55,7 +55,7 @@ def help():
     \t[Q.]show(): Actually send the query Q to the database and print the result.
     """.strip()
 
-def handle_user_input(user_input):
+def handle(user_input):
     """Handle user input."""
     # Change '"I am some text"' to 'I am some text'
     user_input = rBeginOrEndQuotes.sub('', user_input).strip()
@@ -97,7 +97,7 @@ def handle_user_input(user_input):
             query_variable = rBeginOrEndQuotes.sub('', initialize_match.group(1))
             sql = rBeginOrEndQuotes.sub('', initialize_match.group(2))
             query_cache.put(query_variable, sql)
-            return "Initialized", query_variable, "to", sql
+            return "Initialized %s to %s" % (query_variable, sql)
 
         elif quest_command_match:
             # user_input is a Quest operator, delegate
@@ -133,7 +133,8 @@ def handle_user_input(user_input):
                     # didn't provide a query variable, and we
                     # couldn't get one from the cache
                     return "!!! Please run INITIALIZE(<variable>, <SQL query>)"
-                return False
+                else:
+                    return False
             else:
                 # We have a query.
                 if arguments is None:
