@@ -9,7 +9,7 @@ def drilldown(query, parent_attribute):
     Takes a query and parent attribute to drilldown on -- i.e. return
     a query with the parent attribute's child instead of the parent attribute.
     """
-    if parent not in drilldown_parent2child:
+    if parent_attribute not in drilldown_parent2child:
         error_message = "Cannot DRILLDOWN on %s. Can DRILLDOWN on any of these: %s" % (parent_attribute, ", ".join(drilldown_parent2child.keys()))
         raise QuestOperationNotAllowedException(error_message)
 
