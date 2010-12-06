@@ -91,7 +91,9 @@ class Query:
             query = "CREATE TABLE %s %s" % (table_name, self.statement)
             try:
                 quest.engine.run_sql(query)
-                return True
+                # Don't set child, because this is just saving to a
+                # variable
+                return query
             except Exception as e:
                 # Prepend some of our own info onto the exception
                 raise e.__class__("Could not store: %s" % repr(e))
