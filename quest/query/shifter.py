@@ -2,6 +2,8 @@ import re
 import datetime
 from operator import itemgetter
 
+import quest.engine
+
 try:
     import MySQLdb
 except ImportError as ie:
@@ -44,8 +46,6 @@ rBareAttribute = re.compile(r"(?:\w+\.)?[\"']?(\w+)[\"']?")
 # Maps a column name to its type, e.g. movie_id => int
 meta_dict = {}
 
-# DB connection
-db = None
 # DB cursor
 cursor = None
 # A list of all of the column names
@@ -84,7 +84,7 @@ def combineTimestampTokens(array):
         i += 1
     return array
 
-def execute_query(db, query):
+def execute_query(query):
     """
     Tries to run the given query using the given database connection.
 
@@ -99,13 +99,15 @@ def execute_query(db, query):
     global meta_dict
     global column_names
 
-    cursor = db.cursor()
-    try:
-        cursor.execute(query)
-        result_rows = cursor.fetchall()
-    except Exception as e:
-        # Just raise it
-        raise e
+    # Re-initialize since this is called every time we do Query#lshift
+    # or Query#rshift
+    result_rows = None
+    cursor = None
+    meta_dict = {}
+    column_names = None
+
+    cursor = quest.engine.run_sql(query)
+    result_rows = cursor.fetchall()
 
     if len(result_rows) == 0:
         # No results
@@ -423,10 +425,14 @@ def parseStringAndShift(query, att, shift_type):
 
 def rshift(query, attribute):
     """Convenience method."""
+    # Need to run execute_query first
+    execute_query(query)
     return parseStringAndShift(str(query), attribute, RSHIFT)
 
 def lshift(query, attribute):
     """Convenience method."""
+    # Need to run execute_query first
+    execute_query(query)
     return parseStringAndShift(str(query), attribute, LSHIFT)
 
 def test_mysql(attribute = 'throws', shift_type = LSHIFT):
