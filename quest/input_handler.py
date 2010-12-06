@@ -167,14 +167,18 @@ def handle(user_input):
                                 raise te
                             new_query = query_function(*arguments)
                             returned_string = ""
-                            returned_string += "New query: %s" % new_query
-                            # Give the new query a unique name and put it in the
-                            # query cache.
-                            key, query = query_cache.put(None, new_query)
-                            returned_string += "\n** New query put in cache as %s" % key
-                            if should_show_query():
-                                rows = new_query.show()
-                                returned_string += "\n" + str(rows)
+                            if quest_operator.lower() == 'store':
+                                # Don't save the query
+                                returned_string += "Ran this SQL: %s" % new_query
+                            else:
+                                returned_string += "New query: %s" % new_query
+                                # Give the new query a unique name and put it in the
+                                # query cache.
+                                key, query = query_cache.put(None, new_query)
+                                returned_string += "\n** New query put in cache as %s" % key
+                                if should_show_query():
+                                    rows = new_query.show()
+                                    returned_string += "\n" + str(rows)
                             return returned_string
         else:
             return "ERR: %s is not valid SQL or a Quest operator. Please try again." % user_input
