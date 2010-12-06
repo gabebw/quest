@@ -43,7 +43,7 @@ class Query:
         if hasFrom and not hasWhereOrHaving:
             query.append("where "+clause)
 
-        set_child_and_return(' '.join(query))
+        self.set_child_and_return(' '.join(query))
 
     def relax(self, clause):
         """OR's this query with the given predicate."""
@@ -67,7 +67,7 @@ class Query:
         if hasFrom and not hasWhereOrHaving:
             query.append("where "+clause)
 
-        set_child_and_return(' '.join(query))
+        self.set_child_and_return(' '.join(query))
 
     def show(self, number_of_rows = None):
         """
@@ -108,17 +108,17 @@ class Query:
 
     def lshift(self, attr):
         """LSHIFT an attribute of this query."""
-        return set_child_and_return(shifter.lshift(self, attr))
+        return self.set_child_and_return(shifter.lshift(self, attr))
 
     def rshift(self, attr):
         """RSHIFT an attribute of this query."""
-        return set_child_and_return(shifter.rshift(self, attr))
+        return self.set_child_and_return(shifter.rshift(self, attr))
 
     def rollup(self, attr):
-        return set_child_and_return(rollup_drilldown.rollup(self.statement, attr))
+        return self.set_child_and_return(rollup_drilldown.rollup(self.statement, attr))
 
     def drilldown(self, attr):
-        return set_child_and_return(rollup_drilldown.drilldown(self.statement, attr))
+        return self.set_child_and_return(rollup_drilldown.drilldown(self.statement, attr))
 
     def set_child_and_return(self, new_statement):
         """Set new_query as self.child and return new_query."""
