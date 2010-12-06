@@ -126,3 +126,6 @@ class Query:
         new_query = Query(new_statement, self)
         self.child = new_query
         return self.child
+
+    def __str__(self):
+        return str(self.statement)
