@@ -147,7 +147,7 @@ def handle(user_input):
                     else:
                         arguments = quest_command_match.group(3).split(',')
                         # Turn "foo, bar" into ["foo", "bar"]
-                        arguments = [str(arg).strip() for arg in arguments]
+                        arguments = [rBeginOrEndQuotes.sub('', str(arg).strip()) for arg in arguments]
                         if arguments is None:
                             err_msg = "You must provide arguments to %s" % quest_operator
                             err_msg += "\nPlease use this syntax:"
