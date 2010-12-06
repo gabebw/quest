@@ -7,6 +7,9 @@ import quest.engine
 from quest.query import query_cache
 import quest.config as config
 
+# Returned by handle() when user indicated they want to quit
+QUIT = "quit"
+
 rSql = re.compile(r"^(select|update|insert) .+", re.IGNORECASE)
 
 # Quest-specific operators
@@ -57,7 +60,7 @@ def handle_user_input(user_input):
     if user_input.lower() in help_words:
         return help()
     elif user_input.lower() in quit_words:
-        return "exit"
+        return QUIT
     elif user_input == "":
         return "Please enter something other than whitespace."
     else:
