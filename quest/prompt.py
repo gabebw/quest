@@ -39,7 +39,7 @@ class Prompt:
                 break
             try:
                 print input_handler.handle(answer)
-            except Exception:
+            except Exception as e:
                 # Catch everything
                 print e
         print "Bye!"
