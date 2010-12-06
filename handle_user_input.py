@@ -13,7 +13,7 @@ QUIT = "quit"
 rSql = re.compile(r"^(select|update|insert) .+", re.IGNORECASE)
 
 # Quest-specific operators
-rQuestOperator = r"(rollup|drilldown|store|relax|narrow|relate)"
+rQuestOperator = r"(rollup|drilldown|store|relax|narrow|relate|show)"
 rInitialize = re.compile(r"initialize\((.+), (.+)\)", re.IGNORECASE)
 # A query variable has to be word characters, so "my_query_variable" works
 # but "so awesome!!" doesn't. The query variable is optional; if the user
@@ -42,14 +42,18 @@ def help():
     SQL: You can type in any valid SQL expression to see its result.
     You can also use some Quest-specific operators. Note that the
     "Q." is optional; if you don't specify a query to perform a
-    Quest operation on, the most recent query will be used.
+    Quest operation on, the most recent query will be used. Also note
+    that the query is (usually) not sent to the database until show() is
+    called, though there are config settings in config.py that can
+    change this.
     \t[Q.]rollup(attr): rolls up on a query Q on given attribute
     \t[Q.]drilldown(attr): drills down on a query Q on given attribute
     \t[Q.]relax(pred): "OR" the select clause of Q with given predicate
     \t[Q.]narrow(pred): "AND" the select clause of Q with given predicate
     \t[Q.]relate(other_query): Perform a natural join with other_query
     \t[Q.]store(table_name): Store the result of running Q in a table with the given name.
-    """
+    \t[Q.]show(): Actually send the query Q to the database and print the result.
+    """.strip()
 
 def handle_user_input(user_input):
     """Handle user input."""
