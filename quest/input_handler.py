@@ -145,15 +145,15 @@ def handle(user_input):
                         # Special handling because show takes no arguments
                         return query.show()
                     else:
-                        arguments = quest_command_match.group(3).split(',')
-                        # Turn "foo, bar" into ["foo", "bar"]
-                        arguments = [rBeginOrEndQuotes.sub('', str(arg).strip()) for arg in arguments]
+                        arguments = quest_command_match.group(3)
                         if arguments is None:
                             err_msg = "You must provide arguments to %s" % quest_operator
                             err_msg += "\nPlease use this syntax:"
                             err_msg += "[<query variable>.]%s(arg1, arg2, ...)" % quest_operator
                             return err_msg
                         else:
+                            # Turn "'foo', bar" into ["foo", "bar"]
+                            arguments = [rBeginOrEndQuotes.sub('', str(arg).strip()) for arg in arguments.split(',')]
                             try:
                                 # query_function is e.g. query.narrow
                                 query_function = getattr(query, quest_operator.lower())
@@ -165,7 +165,7 @@ def handle(user_input):
                             # Give the new query a unique name and put it in the
                             # query cache.
                             key, query = query_cache.put(None, new_query)
-                            returned_string += "\nNew query put in cache as %s" % key
+                            returned_string += "\n** New query put in cache as %s" % key
                             if should_show_query():
                                 rows = new_query.show()
                                 returned_string += "\n" + str(rows)
