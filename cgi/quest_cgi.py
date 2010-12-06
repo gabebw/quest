@@ -24,7 +24,7 @@ def run():
                         $('#theForm').submit(function(e){
                             e.preventDefault();
                             $.get('navigator.py',
-                                {query: $('#Search').val()},
+                                {query: $('#query').val()},
                                 function(data, textStatus, xhr){
                                     $('#mySearch').html(data);
                                 });
@@ -40,7 +40,7 @@ def run():
                         <form id="theForm">
                         <br/>
                         <p align="center">
-                            Enter your Query <input style="WIDTH: 800px; HEIGHT: 45px" size=48 id="Search" />
+                            Enter your Query <input style="WIDTH: 800px; HEIGHT: 45px" size=48 id="query" />
                             <input id="submit" type="submit" value="Submit" />
                         </p>
                         </form>
