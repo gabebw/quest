@@ -61,7 +61,7 @@ def replace_attribute(attributes, target_attribute, new_attribute):
 
     # Replace all occurrences of target_attribute with new_attribute and
     # leave other attributes alone.
-    replaced_attributes = [new_attribute if elem == target_attribute else elem for elem in split_attributes]
+    replaced_attributes = [new_attribute if elem.strip() == target_attribute else elem for elem in split_attributes]
     # Strip everything.
     replaced_attributes = [att.strip() for att in replaced_attributes]
     return ", ".join(replaced_attributes)
