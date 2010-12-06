@@ -169,18 +169,19 @@ def populate_table(table, column_names, data):
     [update.execute(dict(zip(column_names, element))) for element in data]
 
 if __name__ == "__main__":
-    if len(sys.argv) != 4:
-        print "Usage: %s csv_file_name db_user db_password" % __file__
-        sys.exit(1)
+    if len(sys.argv) != 6:
+        sys.exit("Usage: %s csv_file_name db_name table_name db_user db_password" % __file__)
 
-    csv_file, db_username, db_password = [str(x) for x in sys.argv[1:4]]
+    csv_file, db_name, table_name, db_user, db_password = [str(x) for x in sys.argv[1:]]
     print 'csv_file_name: ' + csv_file
-    print 'db_username  : ' + db_username
+    print 'db_name      : ' + db_name
+    print 'table_name   : ' + table_name
+    print 'db_user      : ' + db_user
     print 'db_password  : ' + db_password
     print
 
     print "Creating database..."
-    create_db_from_csv_file(csv_file, 'baseball', 'playerstats', db_username, db_password)
+    create_db_from_csv_file(csv_file, db_name, table_name, db_user, db_password)
     print "done!"
 else:
     sys.exit("ERROR: Please run %s from the command line." % __file__)
