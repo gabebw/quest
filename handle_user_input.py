@@ -1,15 +1,12 @@
 # Handle user input from any source (i.e. provided by command-line
 # prompt or Web interface).
-import readline
-import atexit
-import os
+
 import re
 
 import quest.engine
 from quest.query import query_cache
 import quest.config as config
 
-# Some class-level regexps
 rSql = re.compile(r"^(select|update|insert) .+", re.IGNORECASE)
 
 # Quest-specific operators
@@ -76,7 +73,6 @@ def handle_user_input(user_input):
             except Exception as e:
                 # Re-raise exception
                 raise e
-                #return False
 
             # rowcount is -1 or None if no query was run or number
             # of rows can't be determined
@@ -166,25 +162,3 @@ def should_show_query():
     without user explicitly asking for it, False otherwise.
     """
     return config.ALWAYS_SHOW is True
-
-def init_history(histfile):
-    """
-    Initialize the history management.
-
-    Reads histfile and registers save_history() to run atexit. Prints an
-    error message if it fails.
-    """
-    readline.parse_and_bind("tab: complete")
-    if hasattr(readline, "read_history_file"):
-        try:
-            readline.read_history_file(histfile)
-        except IOError:
-            raise IOError("Couldn't read history file!")
-        atexit.register(save_history, histfile)
-
-def save_history(histfile):
-    """Saves readline history in histfile. Prints an error message if it fails."""
-    try:
-        readline.write_history_file(histfile)
-    except:
-        raise Exception("ERROR: Couldn't write history file %s" % histfile)
