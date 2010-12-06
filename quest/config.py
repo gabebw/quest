@@ -19,7 +19,7 @@ ALL_ROWS = "all"
 ALWAYS_SHOW = True
 # When we are asked to show a query, and user doesn't specify how many rows to
 # show, we show this many rows. Can be either ALL_ROWS or an integer.
-ROWS_TO_SHOW = ALL_ROWS
+ROWS_TO_SHOW = 10
 
 
 # DB configuration. You should change this in your local config.py, by
