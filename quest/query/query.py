@@ -43,7 +43,7 @@ class Query:
         if hasFrom and not hasWhereOrHaving:
             query.append("where "+clause)
 
-        self.set_child_and_return(' '.join(query))
+        return self.set_child_and_return(' '.join(query))
 
     def relax(self, clause):
         """OR's this query with the given predicate."""
@@ -67,7 +67,7 @@ class Query:
         if hasFrom and not hasWhereOrHaving:
             query.append("where "+clause)
 
-        self.set_child_and_return(' '.join(query))
+        return self.set_child_and_return(' '.join(query))
 
     def show(self, number_of_rows = None):
         """
@@ -104,7 +104,7 @@ class Query:
         Return a string representation of a natural inner join query
         between this query and other_query.
         """
-        return "SELECT * FROM %s NATURAL INNER JOIN %s" % (self, other_query)
+        return self.set_child_and_return("SELECT * FROM %s NATURAL INNER JOIN %s" % (self, other_query))
 
     def lshift(self, attr):
         """LSHIFT an attribute of this query."""
