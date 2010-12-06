@@ -104,9 +104,6 @@ def handle(user_input):
             #print "** QUEST OPERATOR DETECTED **"
             user_query_variable = quest_command_match.group(1)
             quest_operator = quest_command_match.group(2)
-            arguments = quest_command_match.group(3).split(',')
-            # Turn "foo, bar" into ["foo", "bar"]
-            arguments = [str(arg).strip() for arg in arguments]
 
             # Initialize to None in case we fail to set a valid +query+ below
             query = None
@@ -143,6 +140,9 @@ def handle(user_input):
                     # Special handling because show takes no arguments
                     return query.show()
                 else:
+                    arguments = quest_command_match.group(3).split(',')
+                    # Turn "foo, bar" into ["foo", "bar"]
+                    arguments = [str(arg).strip() for arg in arguments]
                     if arguments is None:
                         err_msg = "You must provide arguments to %s" % quest_operator
                         err_msg += "\nPlease use this syntax:"
