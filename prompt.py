@@ -68,7 +68,7 @@ class Prompt:
         """Prompts for user input using given prompt string and returns input."""
         text = raw_input(prompt)
         # Change '"I am some text"' to 'I am some text'
-        text = rBeginOrEndQuotes.sub('', text)
+        text = self.rBeginOrEndQuotes.sub('', text)
         return text
 
     def help(self):
@@ -126,8 +126,8 @@ class Prompt:
                 print "** INITIALIZE OPERATOR DETECTED **"
                 # Strip quotes, in case people do something like
                 # `INITIALIZE("Q", "SELECT * FROM table")`
-                query_variable = rBeginOrEndQuotes.sub('', initialize_match.group(1))
-                sql = rBeginOrEndQuotes.sub('', initialize_match.group(2))
+                query_variable = self.rBeginOrEndQuotes.sub('', initialize_match.group(1))
+                sql = self.rBeginOrEndQuotes.sub('', initialize_match.group(2))
                 query_cache.put(query_variable, sql)
                 print "Initialized", query_variable, "to", sql
 
