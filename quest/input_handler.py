@@ -13,12 +13,12 @@ QUIT = "quit"
 rSql = re.compile(r"^(select|update|insert) .+", re.IGNORECASE)
 
 # Quest-specific operators
-rQuestOperator = r"(rollup|drilldown|store|relax|narrow|relate|show|rshift|lshift)"
+rQuestOperator = r"\.(rollup|drilldown|store|relax|narrow|relate|show|rshift|lshift)"
 rInitialize = re.compile(r"initialize\(\s*(.+?)\s*,\s*(.+)\s*\)", re.IGNORECASE)
 # A query variable has to be word characters, so "my_query_variable" works
 # but "so awesome!!" doesn't. The query variable is optional; if the user
 # just types "rollup(<predicate>)", we use the most recent query.
-rQueryVariable = r"^(?:\s*(\w+)\.)?"
+rQueryVariable = r"^(?:\s*(\w+))?"
 # Even though arguments aren't syntactically optional, we make this is an
 # optional match so that we can check for "arguments == None" later.
 rArguments = r"(?:\s*\((.+)\s*\))?"
@@ -30,6 +30,8 @@ rArguments = r"(?:\s*\((.+)\s*\))?"
 #  3: the arguments      (e.g. "predicate")
 rQuestCommand = re.compile(rQueryVariable + rQuestOperator + rArguments,
         re.IGNORECASE)
+# Just a variable, no operator
+rBareVariable = re.compile(rQueryVariable + "$", re.I)
 
 # If the user enters commands like "q.rollup(X)", we use this to
 # remove the quotes
@@ -70,6 +72,8 @@ def handle(user_input):
     else:
         sql_match = re.match(rSql, user_input)
         initialize_match = re.match(rInitialize, user_input)
+        # Sometimes the user enters just "Q"
+        bare_variable_match = re.match(rBareVariable, user_input)
         quest_command_match = re.match(rQuestCommand, user_input)
 
         if sql_match:
@@ -98,10 +102,17 @@ def handle(user_input):
             sql = rBeginOrEndQuotes.sub('', initialize_match.group(2))
             query_cache.put(query_variable, sql)
             return "Initialized %s to %s" % (query_variable, sql)
-
+        elif bare_variable_match:
+            # User entered just a Quest variable, sans operator
+            user_query_variable = bare_variable_match.group(1)
+            try:
+                query_key, query = extract_query_key_and_query(user_query_variable)
+                return str(query)
+            except Exception as e:
+                return str(e)
         elif quest_command_match:
+            # User entered a Quest variable, with an operator
             # user_input is a Quest operator, delegate
-            #print "** QUEST OPERATOR DETECTED **"
             user_query_variable = quest_command_match.group(1)
             quest_operator = quest_command_match.group(2)
 
@@ -111,20 +122,10 @@ def handle(user_input):
             # Query instance
             query_key = None
 
-            if user_query_variable is not None:
-                # User is calling an operator on a specific query.
-                # Try to look up the query in the query cache.
-                query_key = user_query_variable
-                try:
-                    query = query_cache.get(query_key)
-                except KeyError:
-                    # User is trying to use a non-initialized
-                    # variable
-                    err_msg = "!!! %s is not a valid query variable. Please try again." % user_query_variable
-                    return err_msg
-            else:
-                # No query variable specified, so use most recent query
-                query_key, query = query_cache.most_recent_key_and_query
+            try:
+                query_key, query = extract_query_key_and_query(user_query_variable)
+            except Exception as e:
+                return str(e)
 
             if query is None:
                 if user_query_variable is None and query_key is None:
@@ -135,36 +136,40 @@ def handle(user_input):
                 else:
                     return False
             else:
-                # We have a query.
-                if quest_operator.lower() == "show":
-                    # Special handling because show takes no arguments
-                    return query.show()
+                if not quest_operator:
+                    # Just a query variable, no operator.
+                    return str(query)
                 else:
-                    arguments = quest_command_match.group(3).split(',')
-                    # Turn "foo, bar" into ["foo", "bar"]
-                    arguments = [str(arg).strip() for arg in arguments]
-                    if arguments is None:
-                        err_msg = "You must provide arguments to %s" % quest_operator
-                        err_msg += "\nPlease use this syntax:"
-                        err_msg += "[<query variable>.]%s(arg1, arg2, ...)" % quest_operator
-                        return err_msg
+                    # We have a query, with operators.
+                    if quest_operator.lower() == "show":
+                        # Special handling because show takes no arguments
+                        return query.show()
                     else:
-                        try:
-                            # query_function is e.g. query.narrow
-                            query_function = getattr(query, quest_operator.lower())
-                        except TypeError as te:
-                            raise te
-                        new_query = query_function(*arguments)
-                        returned_string = ""
-                        returned_string += "New query: %s" % new_query
-                        # Give the new query a unique name and put it in the
-                        # query cache.
-                        key, query = query_cache.put(None, new_query)
-                        returned_string += "\nNew query put in cache as %s" % key
-                        if should_show_query():
-                            rows = new_query.show()
-                            returned_string += "\n" + str(rows)
-                        return returned_string
+                        arguments = quest_command_match.group(3).split(',')
+                        # Turn "foo, bar" into ["foo", "bar"]
+                        arguments = [str(arg).strip() for arg in arguments]
+                        if arguments is None:
+                            err_msg = "You must provide arguments to %s" % quest_operator
+                            err_msg += "\nPlease use this syntax:"
+                            err_msg += "[<query variable>.]%s(arg1, arg2, ...)" % quest_operator
+                            return err_msg
+                        else:
+                            try:
+                                # query_function is e.g. query.narrow
+                                query_function = getattr(query, quest_operator.lower())
+                            except TypeError as te:
+                                raise te
+                            new_query = query_function(*arguments)
+                            returned_string = ""
+                            returned_string += "New query: %s" % new_query
+                            # Give the new query a unique name and put it in the
+                            # query cache.
+                            key, query = query_cache.put(None, new_query)
+                            returned_string += "\nNew query put in cache as %s" % key
+                            if should_show_query():
+                                rows = new_query.show()
+                                returned_string += "\n" + str(rows)
+                            return returned_string
         else:
             return "ERR: %s is not valid SQL or a Quest operator. Please try again." % user_input
         # If we haven't returned by now, it's an error. Return False.
@@ -176,3 +181,28 @@ def should_show_query():
     without user explicitly asking for it, False otherwise.
     """
     return config.ALWAYS_SHOW is True
+
+def extract_query_key_and_query(variable):
+    """
+    Given a variable like "Q", get the query key ("Q") and the
+    associated query instance from the cache. If variable is None, then
+    gets the most recent query and its key from the cache.
+
+    Returns a tuple of (key, query_instance), or raises an Exception.
+    """
+
+    if variable is None:
+        # No query variable specified, so use most recent query
+        query_key, query = query_cache.most_recent_key_and_query
+        return (query_key, query)
+    else:
+        # User is calling an operator on a specific query.
+        # Try to look up the query in the query cache.
+        query_key = variable
+        try:
+            query = query_cache.get(query_key)
+            return (query_key, query)
+        except KeyError:
+            # User is trying to use a non-initialized
+            # variable
+            raise Exception("!!! %s is not a valid query variable. Please try again." % user_query_variable)
