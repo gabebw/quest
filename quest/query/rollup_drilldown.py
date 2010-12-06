@@ -34,7 +34,7 @@ def replace_and_create_new_query(query, target_attribute, new_attribute):
     query string.
     """
     parsed = sqlparse.parse(query)
-    new_query = ""
+    new_query = []
     for statement in parsed:
         replace_text = False
         for token in statement.tokens:
