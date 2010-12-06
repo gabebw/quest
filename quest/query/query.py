@@ -106,7 +106,10 @@ class Query:
         Return a string representation of a natural inner join query
         between this query and other_query.
         """
-        return self.set_child_and_return("SELECT * FROM %s NATURAL INNER JOIN %s" % (self, other_query))
+        statement_without_semicolon = self.statement
+        if self.statement.endswith(";"):
+            statement_without_semicolon = self.statement[:-1].strip()
+        return self.set_child_and_return("SELECT * FROM %s NATURAL INNER JOIN %s" % (statement_without_semicolon, other_query))
 
     def lshift(self, attr):
         """LSHIFT an attribute of this query."""
