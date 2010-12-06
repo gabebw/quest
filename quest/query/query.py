@@ -8,7 +8,7 @@ import shifter
 import rollup_drilldown
 
 class Query:
-    rBeginsWithSelect = re.compile("^begin", re.I)
+    rBeginsWithSelect = re.compile("^select", re.I)
 
     def __init__(self, query_string, parent = None):
         """
