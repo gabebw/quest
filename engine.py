@@ -56,6 +56,9 @@ def run_sql(sql):
         cursor = db.cursor()
     else:
         try:
+            if not sql.endswith(';'):
+                # We need a semicolon or pure SQL won't work
+                sql += ';'
             cursor.execute(sql)
             return cursor
         except Exception as e:
