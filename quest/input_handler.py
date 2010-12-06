@@ -137,28 +137,32 @@ def handle(user_input):
                     return False
             else:
                 # We have a query.
-                if arguments is None:
-                    err_msg = "You must provide arguments to %s" % quest_operator
-                    err_msg += "\nPlease use this syntax:"
-                    err_msg += "[<query variable>.]%s(arg1, arg2, ...)" % quest_operator
-                    return err_msg
+                if quest_operator.lower() == "show":
+                    # Special handling because show takes no arguments
+                    return query.show()
                 else:
-                    try:
-                        # query_function is e.g. query.narrow
-                        query_function = getattr(query, quest_operator.lower())
-                    except TypeError as te:
-                        raise te
-                    new_query = query_function(*arguments)
-                    returned_string = ""
-                    if should_show_query():
-                        rows = new_query.show()
-                        returned_string = str(rows)
-                    returned_string += "\n%s" % new_query
-                    # Give the new query a unique name and put it in the
-                    # query cache.
-                    key, query = query_cache.put(None, new_query)
-                    returned_string += "\nQuery put in cache as %s" % key
-                    return returned_string
+                    if arguments is None:
+                        err_msg = "You must provide arguments to %s" % quest_operator
+                        err_msg += "\nPlease use this syntax:"
+                        err_msg += "[<query variable>.]%s(arg1, arg2, ...)" % quest_operator
+                        return err_msg
+                    else:
+                        try:
+                            # query_function is e.g. query.narrow
+                            query_function = getattr(query, quest_operator.lower())
+                        except TypeError as te:
+                            raise te
+                        new_query = query_function(*arguments)
+                        returned_string = ""
+                        if should_show_query():
+                            rows = new_query.show()
+                            returned_string = str(rows)
+                        returned_string += "\n%s" % new_query
+                        # Give the new query a unique name and put it in the
+                        # query cache.
+                        key, query = query_cache.put(None, new_query)
+                        returned_string += "\nQuery put in cache as %s" % key
+                        return returned_string
         else:
             return "ERR: %s is not valid SQL or a Quest operator. Please try again." % user_input
         # If we haven't returned by now, it's an error. Return False.
