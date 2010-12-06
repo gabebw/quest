@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-# A simple server to run a local HTML interface to Quest 
+# A simple server to run a local HTML interface to Quest
 
 import cherrypy
 
@@ -12,10 +12,10 @@ import sys
 current_dir = dirname(os.path.abspath(__file__))
 dir_above_quest = dirname(dirname(current_dir))
 # So we can do "import quest"
-# Eventually, we'll actually install quest, and we won't need this hack 
+# Eventually, we'll actually install quest, and we won't need this hack
 sys.path.insert(0, dir_above_quest)
 
-tutconf = os.path.join(dirname(__file__), 'quest_app.conf')
+quest_config = os.path.join(dirname(__file__), 'quest_app.conf')
 
 import quest
 from quest import config
@@ -129,16 +129,18 @@ class WelcomePage:
                 return 'No, really, enter your query <a href="./">here</a>.'
 
 
+def run():
+    # CherryPy always starts with app.root when trying to map request URIs
+    # to objects, so we need to mount a request handler root. A request
+    # to '/' will be mapped to HelloWorld().index().
+    cherrypy.quickstart(WelcomePage(), config=quest_config)
+
 if __name__ == '__main__':
-    if len(sys.argv) < 3:
+    if len(sys.argv) != 3:
         sys.exit("Usage: %s db_name db_password" % __file__)
     else:
         config.db_name = sys.argv[1]
         config.db_password = sys.argv[2]
-
-        # CherryPy always starts with app.root when trying to map request URIs
-        # to objects, so we need to mount a request handler root. A request
-        # to '/' will be mapped to HelloWorld().index().
-        cherrypy.quickstart(WelcomePage(), config=tutconf)
+        run()
 else:
     sys.exit("Don't import %s. Please run it from the command line." % __file__)
