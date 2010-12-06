@@ -215,4 +215,4 @@ def extract_query_key_and_query(variable):
         except KeyError:
             # User is trying to use a non-initialized
             # variable
-            raise Exception("!!! %s is not a valid query variable. Please try again." % user_query_variable)
+            raise Exception("!!! %s is not a valid query variable. Please try again." % variable)
