@@ -14,14 +14,14 @@ rSql = re.compile(r"^(select|update|insert) .+", re.IGNORECASE)
 
 # Quest-specific operators
 rQuestOperator = r"(rollup|drilldown|store|relax|narrow|relate|show)"
-rInitialize = re.compile(r"initialize\((.+), (.+)\)", re.IGNORECASE)
+rInitialize = re.compile(r"initialize\(\s*(.+)\s*,\s*(.+)\s*\)", re.IGNORECASE)
 # A query variable has to be word characters, so "my_query_variable" works
 # but "so awesome!!" doesn't. The query variable is optional; if the user
 # just types "rollup(<predicate>)", we use the most recent query.
-rQueryVariable = r"^(?:(\w+)\.)?"
+rQueryVariable = r"^(?:\s*(\w+)\.)?"
 # Even though arguments aren't syntactically optional, we make this is an
 # optional match so that we can check for "arguments == None" later.
-rArguments = r"(?:\((.+)\))?"
+rArguments = r"(?:\s*\((.+)\s*\))?"
 # Matches a line with a Quest operator, regardless of case.
 # So Q.rollup(predicate) would match, as would rollup(predicate).
 # Groups:
