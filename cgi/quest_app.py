@@ -131,7 +131,7 @@ class WelcomePage:
 
 if __name__ == '__main__':
     if len(sys.argv) < 3:
-        print "Usage: %s db_name db_password" % __file__
+        sys.exit("Usage: %s db_name db_password" % __file__)
     else:
         config.db_name = sys.argv[1]
         config.db_password = sys.argv[2]
@@ -141,5 +141,4 @@ if __name__ == '__main__':
         # to '/' will be mapped to HelloWorld().index().
         cherrypy.quickstart(WelcomePage(), config=tutconf)
 else:
-    # This branch is for the test suite; you can ignore it.
-    cherrypy.tree.mount(WelcomePage(), config=tutconf)
+    sys.exit("Don't import %s. Please run it from the command line." % __file__)
