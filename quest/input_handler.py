@@ -142,8 +142,14 @@ def handle(user_input):
                 else:
                     # We have a query, with operators.
                     if quest_operator.lower() == "show":
-                        # Special handling because show takes no arguments
-                        return query.show()
+                        # Special handling because show can take 0 arguments
+                        arguments = quest_command_match.group(3)
+                        if arguments is None:
+                            return query.show()
+                        else:
+                            arguments = [rBeginOrEndQuotes.sub('', str(arg).strip()) for arg in arguments.split(',')]
+                            # Only take the first argument
+                            return query.show(arguments[0])
                     else:
                         arguments = quest_command_match.group(3)
                         if arguments is None:
