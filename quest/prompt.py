@@ -38,10 +38,13 @@ class Prompt:
                 print # get on a newline first
                 break
             try:
-                print input_handler.handle(answer)
+                handle_value = input_handler.handle(answer)
             except Exception as e:
                 # Catch everything
                 print e
+            else:
+                print handle_value
+
         print "Bye!"
 
     def get_input(self, prompt):
