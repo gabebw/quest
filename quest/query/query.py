@@ -108,11 +108,11 @@ class Query:
 
     def lshift(self, attr):
         """LSHIFT an attribute of this query."""
-        return self.set_child_and_return(shifter.lshift(self, attr))
+        return self.set_child_and_return(shifter.lshift(self.statement, attr))
 
     def rshift(self, attr):
         """RSHIFT an attribute of this query."""
-        return self.set_child_and_return(shifter.rshift(self, attr))
+        return self.set_child_and_return(shifter.rshift(self.statement, attr))
 
     def rollup(self, attr):
         return self.set_child_and_return(rollup_drilldown.rollup(self.statement, attr))
