@@ -7,20 +7,28 @@ import MySQLdb
 import config
 import util
 
-try:
-    db = MySQLdb.connect(host = config.db_host,
-            user = config.db_user,
-            passwd = config.db_password,
-            db = config.db_name)
-except MySQLdb.MySQLError as e:
-    print "Couldn't connect! Maybe your connection info is wrong:"
-    print "db_host: %s" % config.db_host
-    print "db_user: %s" % config.db_user
-    print "db_password: %s" % config.db_password
-    print "db_name: %s" % config.db_name
-    raise e
+class QuestConnectionError(MySQLdb.MySQLError):
+    def __init__(self, db_host, db_user, db_password, db_name):
+        self.db_host = db_host
+        self.db_user = db_user
+        self.db_password = db_password
+        self.db_name = db_name
 
-cursor = db.cursor()
+    def __str__(self):
+        msg = "Couldn't connect! Maybe your connection info is wrong:"
+        msg += "\ndb_host: %s" % self.db_host
+        msg += "\ndb_user: %s" % self.db_user
+        msg += "\ndb_password: %s" % self.db_password
+        msg += "\ndb_name: %s" % self.db_name
+        return msg
+
+    def __repr__(self):
+        return __str__()
+
+# run_sql sets these the first time it's run. This enables us to import
+# this file before setting config parameters
+db = None
+cursor = None
 
 def run_sql(sql):
     """
@@ -30,12 +38,29 @@ def run_sql(sql):
     After running this, use the returned cursor object to run
     cursor.fetchone() or cursor.fetchall() to fetch results.
     """
-    try:
-        cursor.execute(sql)
-        return cursor
-    except Exception as e:
-        # Re-raise the error
-        raise e
+    global db, cursor
+
+    if db is None:
+        # Not yet set, do so
+
+        try:
+            db = MySQLdb.connect(host = config.db_host,
+                    user = config.db_user,
+                    passwd = config.db_password,
+                    db = config.db_name)
+        except MySQLdb.MySQLError as e:
+            raise QuestConnectionError(config.db_host,
+                    config.db_user,
+                    config.db_password,
+                    config.db_name)
+        cursor = db.cursor()
+    else:
+        try:
+            cursor.execute(sql)
+            return cursor
+        except Exception as e:
+            # Re-raise the error
+            raise e
 
 def show(query, number_of_rows = None):
     """Actually sends the given query to the database and returns the resulting
