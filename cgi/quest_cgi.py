@@ -16,6 +16,10 @@ def run():
                 <head>
                 <title>Quest</title>
                 <style type="text/css">
+                    #query {
+                        width: 800px;
+                        height: 45px;
+                    }
                 </style>
 
                 <script type="text/javascript" src="jquery-1.4.4..min.js"></script>
@@ -40,7 +44,8 @@ def run():
                         <form id="theForm">
                         <br/>
                         <p align="center">
-                            Enter your Query <input style="WIDTH: 800px; HEIGHT: 45px" size=48 id="query" />
+                            Enter your Query
+                            <input id="query" name="query" size=48 />
                             <input id="submit" type="submit" value="Submit" />
                         </p>
                         </form>
