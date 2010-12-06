@@ -22,7 +22,7 @@ def run():
                     }
                 </style>
 
-                <script type="text/javascript" src="jquery-1.4.4..min.js"></script>
+                <script type="text/javascript" src="jquery-1.4.4.min.js"></script>
                 <script type="text/javascript">
                     $(document).ready(function(){
                         $('#theForm').submit(function(e){
