@@ -292,7 +292,7 @@ def parseStringAndShift(query, att, shift_type):
     did_shift = False
 
     while i < len(split_query):
-        token = split_query[i]
+        token = split_query[i].strip()
         if token.lower() in ('where', 'having'):
             found_where_or_having = True
             next
