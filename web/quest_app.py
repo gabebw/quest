@@ -124,9 +124,9 @@ class WelcomePage:
         else:
             if query is None:
                 # No name was specified
-                return 'Please enter your query <a href="./">here</a>.'
+                return 'Please enter a query.'
             else:
-                return 'No, really, enter your query <a href="./">here</a>.'
+                return 'No, really, enter a query.'
 
 
 def run():
@@ -141,6 +141,4 @@ if __name__ == '__main__':
     else:
         config.db_name = sys.argv[1]
         config.db_password = sys.argv[2]
-        run()
-else:
-    sys.exit("Don't import %s. Please run it from the command line." % __file__)
+        cherrypy.quickstart(WelcomePage(), config=quest_config)
