@@ -1,5 +1,22 @@
 #!/usr/bin/env python
-# Intended to be run from the command line, to set up a test database.
+"""
+This can be run from the command line, to set up a test MySQL database.
+The command-line usage is like:
+    $ createDB.py csv_file_name db_name, table_name db_user db_password
+Or, you can create a file containing the following:
+    from quest.test import createDB
+    createDB.create_db_from_csv_file(csv_file, db_name, table_name, db_username, db_password)
+create_db_from_csv_file only allows one table to be created from the
+given csv_file.  It assumes that the csv file is formatted like so:
+    col_name1,col_name2,...,last_col_name
+    type_of_col1,type_of_col2,...,type_of_last_column
+    primary_key_boolean1,primary_key_boolean2,...,primary_key_boolean_for_last_column
+    # Every line after this is a row where the i'th item is the row's
+    # value for the i'th column
+
+The second row, with the type_of_col1, allows for 3 types: STRING, INTEGER, or REAL (a non-integer).
+The third row, with primary_key_boolean's, should have the string "TRUE" if this column is part of the primary key, and "FALSE" if it is not.
+"""
 
 import sys
 import csv
@@ -123,9 +140,7 @@ def derive_column_types(lst):
             'Integer': sqlalchemy.Integer(),
             # precision = total number of digits in the number
             # scale = number of digits to right of decimal
-            # All of the floats in the CSV are like 0.xxxx, so we can set
-            # scale = precision - 1
-            'Real': sqlalchemy.Numeric(precision=10, scale=9)
+            'Real': sqlalchemy.Numeric(precision=12, scale=6)
             }
 
     for element in lst:
@@ -183,5 +198,3 @@ if __name__ == "__main__":
     print "Creating database..."
     create_db_from_csv_file(csv_file, db_name, table_name, db_user, db_password)
     print "done!"
-else:
-    sys.exit("ERROR: Please run %s from the command line." % __file__)
