@@ -84,7 +84,7 @@ class Query:
         successfully stored, raises the error it encountered with some
         extra Quest-specific info prepended to the error message.
         """
-        match = self.statement.match(self.rBeginsWithSelect)
+        match = self.rBeginsWithSelect.match(self.statement)
         if match:
             # This is a SELECT statement, proceed
             # CREATE TABLE new_table_name SELECT ...
