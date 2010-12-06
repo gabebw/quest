@@ -54,16 +54,15 @@ def run_sql(sql):
                     config.db_password,
                     config.db_name)
         cursor = db.cursor()
-    else:
-        try:
-            if not sql.endswith(';'):
-                # We need a semicolon or pure SQL won't work
-                sql += ';'
-            cursor.execute(sql)
-            return cursor
-        except Exception as e:
-            # Re-raise the error
-            raise e
+    try:
+        if not sql.endswith(';'):
+            # We need a semicolon or pure SQL won't work
+            sql += ';'
+        cursor.execute(sql)
+        return cursor
+    except Exception as e:
+        # Re-raise the error
+        raise e
 
 def show(query, number_of_rows = None):
     """Actually sends the given query to the database and returns the resulting
