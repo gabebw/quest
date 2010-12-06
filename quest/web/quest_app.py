@@ -2,24 +2,19 @@
 
 # A simple server to run a local HTML interface to Quest
 
-import cherrypy
-
 import os.path
 from os.path import dirname
 import sys
 
-# Used in conf file to serve static assets
-current_dir = dirname(os.path.abspath(__file__))
-dir_above_quest = dirname(dirname(current_dir))
-# So we can do "import quest"
-# Eventually, we'll actually install quest, and we won't need this hack
-sys.path.insert(0, dir_above_quest)
-
-quest_config = os.path.join(dirname(__file__), 'quest_app.conf')
+import cherrypy
 
 import quest
 from quest import config
 from quest import input_handler
+
+# Used in conf file to serve static assets
+current_dir = dirname(os.path.abspath(__file__))
+quest_config = os.path.join(dirname(__file__), 'quest_app.conf')
 
 quest_html = """
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
