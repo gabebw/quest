@@ -81,7 +81,7 @@ def cleanup_data(rows, column_types):
         else:
             try:
                 return numeric_type(elem.strip())
-            except ValueError as ve:
+            except ValueError, ve:
                 print "|%s|" % elem.strip()
                 print ve
                 raise TypeError("%s is of wrong type (expected %s, got %s)" % (element, numeric_type, type(element)))

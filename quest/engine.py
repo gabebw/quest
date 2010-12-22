@@ -48,7 +48,7 @@ def run_sql(sql):
                     user = config.db_user,
                     passwd = config.db_password,
                     db = config.db_name)
-        except MySQLdb.MySQLError as e:
+        except MySQLdb.MySQLError, e:
             raise QuestConnectionError(config.db_host,
                     config.db_user,
                     config.db_password,
@@ -60,7 +60,7 @@ def run_sql(sql):
             sql += ';'
         cursor.execute(sql)
         return cursor
-    except Exception as e:
+    except Exception, e:
         # Re-raise the error
         raise e
 

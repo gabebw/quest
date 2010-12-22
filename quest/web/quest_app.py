@@ -114,7 +114,7 @@ class WelcomePage:
                 response = str(input_handler.handle(query)).strip()
                 # Add a period and <br> instead of newlines
                 return response.replace("\n", ".<br/>")
-            except Exception as e:
+            except Exception:
                 return "<hr><h1>Oops! Quest couldn't handle your input.</h1>"
         else:
             if query is None:

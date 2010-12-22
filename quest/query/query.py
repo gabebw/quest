@@ -94,7 +94,7 @@ class Query:
                 # Don't set child, because this is just saving to a
                 # variable
                 return query
-            except Exception as e:
+            except Exception, e:
                 # Prepend some of our own info onto the exception
                 raise e.__class__("Could not store: %s" % repr(e))
         else:

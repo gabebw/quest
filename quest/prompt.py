@@ -39,7 +39,7 @@ class Prompt:
                 break
             try:
                 handle_value = input_handler.handle(answer)
-            except Exception as e:
+            except Exception, e:
                 # Catch everything
                 print e
             else:

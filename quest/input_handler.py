@@ -81,7 +81,7 @@ def handle(user_input):
             #print "** SQL DETECTED **"
             try:
                 cursor = quest.engine.run_sql(user_input)
-            except Exception as e:
+            except Exception, e:
                 # Re-raise exception
                 raise e
 
@@ -108,7 +108,7 @@ def handle(user_input):
             try:
                 query_key, query = extract_query_key_and_query(user_query_variable)
                 return str(query)
-            except Exception as e:
+            except Exception, e:
                 return str(e)
         elif quest_command_match:
             # User entered a Quest variable, with an operator
@@ -124,7 +124,7 @@ def handle(user_input):
 
             try:
                 query_key, query = extract_query_key_and_query(user_query_variable)
-            except Exception as e:
+            except Exception, e:
                 return str(e)
 
             if query is None:
@@ -163,7 +163,7 @@ def handle(user_input):
                             try:
                                 # query_function is e.g. query.narrow
                                 query_function = getattr(query, quest_operator.lower())
-                            except TypeError as te:
+                            except TypeError, te:
                                 raise te
                             new_query = query_function(*arguments)
                             returned_string = ""

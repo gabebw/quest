@@ -6,7 +6,7 @@ import quest.engine
 
 try:
     import MySQLdb
-except ImportError as ie:
+except ImportError:
     import sys
     sys.exit("!!! Could not import MySQLdb. Install mysql-python.")
 
@@ -133,7 +133,7 @@ def column_index(column_name):
     """
     try:
         return column_names.index(column_name)
-    except ValueError as ve:
+    except ValueError:
         # No column with this name exists
         return None
 
